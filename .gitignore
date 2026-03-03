@@ -1,0 +1,95 @@
+# OS generated files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+ehthumbs.db
+Thumbs.db
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+build/
+develop-eggs/
+dist/
+downloads/
+eggs/
+.eggs/
+lib/
+lib64/
+parts/
+sdist/
+var/
+wheels/
+share/python-wheels/
+*.egg-info/
+.installed.cfg
+*.egg
+MANIFEST
+
+# Virtual Environments
+venv/
+env/
+ENV/
+env.bak/
+venv.bak/
+.env/
+.venv/
+
+# Environment variables
+.env
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+*.secret
+secrets.json
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# IDEs and Editors
+.vscode/
+.idea/
+*.swp
+*.swo
+*~
+.project
+.settings/
+
+# Data and models (excluding large files or sensitive data)
+*.csv
+*.dat
+*.out
+*.log
+*.sqlite
+*.db
+*.sqlite3
+*.db-journal
+*.model
+*.pb
+*.h5
+*.hdf5
+*.pkl
+*.onnx
+*.pt
+*.pth
+*.joblib
+datasets/
+models/
+data/
+
+# Logs
+logs/
+*.log
+
+# AI/Agent specific
+.agents/
+skills-lock.json
+.cache/
+.pytest_cache/
+.ruff_cache/
