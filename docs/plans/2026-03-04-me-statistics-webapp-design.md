@@ -1,7 +1,7 @@
 # ME Statistics — Ultimate Combined Design Document
 
 > **Date**: 2026-03-04
-> **Version**: 2.1 (Combined from 4 plans + export feature)
+> **Version**: 2.2 (Combined from 4 plans + export + notifications)
 > **Owner**: Director of Medication Error
 > **Status**: Pending final approval
 
@@ -17,6 +17,7 @@ A web application for the Medication Error department staff to log monthly repor
 - Dashboards accurately show trends, targets, and anonymized rankings
 - All data mutations are captured in an immutable audit log
 - Full English/Arabic support with RTL/LTR switching
+- In-app notifications (bell badge + toasts + achievement celebrations)
 
 ---
 
@@ -216,6 +217,18 @@ ME_Statistics/
 | before_json | Text | Snapshot before change |
 | after_json | Text | Snapshot after change |
 | created_at | DateTime | Immutable timestamp (Asia/Riyadh) |
+
+### 4.7 Notification
+
+| Column | Type | Notes |
+|--------|------|-------|
+| id | Integer, PK | |
+| user_id | Integer, FK → User | Who should see this |
+| type | String | `registration`, `approval_request`, `approval_result`, `goal_assigned` |
+| message | String | Short text |
+| link | String | URL to relevant page |
+| is_read | Boolean | Default `False` |
+| created_at | DateTime | |
 
 ### 4.6 SystemConfig
 
@@ -480,13 +493,16 @@ Percentages rounded to 1 decimal place.
 - API endpoints for `fetch()`
 - Approval queue (for users with approval enabled)
 
-### Phase 4: Admin Settings, Export & Polish
+### Phase 4: Admin Settings, Export, Notifications & Polish
 - System config page
 - Target snapshots on MonthlyReport
 - Encouraging language + motivational UX
 - Export feature: Excel (.xlsx) + PDF generation
 - Staff export (own data) + Admin export (individual + team)
 - Preset periods (month/quarter/year) + custom range
+- Toast notifications (success/warning/error/info)
+- Bell badge notifications (persistent, read/unread)
+- Achievement toasts (milestone celebrations)
 
 ### Phase 5: Bilingual & RTL
 - Translation keys for all UI text
@@ -549,9 +565,60 @@ Percentages rounded to 1 decimal place.
 
 ---
 
-## 16. Post-V1 Backlog
+## 16. Notification System
+
+### Two Notification Types
+
+| System | Purpose | Lifetime |
+|--------|---------|----------|
+| **🔔 Bell Badge** | Persistent awareness — "things need your attention" | Until read/acted on |
+| **🍞 Toast** | Immediate feedback — "your action worked" | Auto-dismiss 4 seconds |
+
+### Toast Notifications (top-right, stacked, max 3 visible)
+
+| Variant | Style | Used for |
+|---------|-------|----------|
+| **Success** | Teal accent, left border | "Report logged — great work! ✅" |
+| **Warning** | Amber accent, left border | "Target not set yet" |
+| **Error** | Soft red accent, left border | "Save failed — let's try again" |
+| **Info** | Blue accent, left border | "Language changed", "Settings updated" |
+
+**Behavior**: Slides in from right (from left in RTL), auto-dismisses after 4 seconds with a progress bar, click ✕ to dismiss early.
+
+### 🏆 Achievement Toasts (special milestone celebrations)
+
+| Milestone | Message |
+|-----------|---------|
+| First report logged | "Welcome aboard! Your first report is in 🎉" |
+| Hit monthly target | "Target reached! Outstanding this month 🏆" |
+| All goals completed | "All goals complete — what a year! 🌟" |
+| 6-month streak | "6 months straight — incredible consistency! 🔥" |
+
+Achievement toasts use a distinct style — gold-accented card with a subtle celebration animation — to feel special vs. regular toasts.
+
+### 🔔 Bell Badge (top bar, next to user profile)
+
+**Visual**: Bell icon with red count badge. Click to open dropdown list of recent notifications. "Mark all as read" at bottom.
+
+**Notification Triggers**:
+
+| Event | Notifies | Message |
+|-------|----------|---------|
+| Staff registers | All admins | "New registration: [name]" |
+| Staff submits goal (approval on) | All admins | "Goal pending from [name]" |
+| Staff submits report (approval on) | All admins | "Report pending from [name]" |
+| Admin approves goal | That staff | "Your goal was approved ✅" |
+| Admin rejects goal | That staff | "Goal needs revision" |
+| Admin assigns goal | That staff | "New goal assigned to you" |
+| Admin approves report | That staff | "Report approved ✅" |
+
+---
+
+## 17. Post-V1 Backlog
 
 - Email notifications / reminders for missing logs
+- Bell auto-refresh polling (every 30s via fetch)
+- Notification sound toggle (off by default)
 - Month-lock / finalization workflow
 - Advanced analytics / forecasting
 - Historical Excel import tool
@@ -559,7 +626,7 @@ Percentages rounded to 1 decimal place.
 
 ---
 
-## 17. Verification Plan
+## 18. Verification Plan
 
 ### Automated Tests
 - Auth: login, register, approval flow, role decorators
@@ -572,6 +639,9 @@ Percentages rounded to 1 decimal place.
 - Export: Excel files contain correct data for selected period
 - Export: PDF renders with department branding and correct language
 - Export: Staff can only export own data, admin can export any
+- Notifications: Bell badge count increments on trigger events
+- Notifications: Toasts appear and auto-dismiss after 4 seconds
+- Notifications: Achievement toasts trigger on correct milestones
 
 ### Manual Verification
 - Visual inspection of dashboard charts (desktop + tablet)
@@ -581,3 +651,6 @@ Percentages rounded to 1 decimal place.
 - Admin can toggle per-user workflow settings and see immediate effect
 - Export: Download Excel and verify data matches dashboard
 - Export: Download PDF and verify formatting, branding, language
+- Notifications: Toast slides in from correct side (right in LTR, left in RTL)
+- Notifications: Bell dropdown shows notifications in chronological order
+- Notifications: Achievement toast appears with special styling on milestone
