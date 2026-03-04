@@ -1,7 +1,7 @@
 # ME Statistics — Ultimate Combined Design Document
 
 > **Date**: 2026-03-04
-> **Version**: 2.2 (Combined from 4 plans + export + notifications)
+> **Version**: 2.3 (Combined from 4 plans + export + notifications + UI enhancements)
 > **Owner**: Director of Medication Error
 > **Status**: Pending final approval
 
@@ -33,7 +33,8 @@ A web application for the Medication Error department staff to log monthly repor
 | **Templating** | Jinja2 | Server-side rendering |
 | **Frontend** | HTML5, CSS3 (vanilla), JS | UI |
 | **Charts** | Chart.js | Data visualization |
-| **Fonts** | Nunito + Source Sans 3 | Google Fonts |
+| **Fonts** | Plus Jakarta Sans + Cairo | Google Fonts (EN + AR) |
+| **Icons** | Lucide Icons | Lightweight SVG icon set (CDN/inline) |
 | **i18n** | Flask-Babel (or custom) | EN/AR translation |
 | **Export** | openpyxl + ReportLab | Excel (.xlsx) + PDF generation |
 | **Deployment** | Gunicorn + Nginx | Production server |
@@ -390,31 +391,49 @@ Percentages rounded to 1 decimal place.
 ## 10. Visual Design System
 
 ### Design Direction
-**Warm & Motivational** — a coaching dashboard that celebrates progress. Encouraging language, soft colors, approachable typography.
+**Warm & Motivational** — a coaching dashboard that celebrates progress. Encouraging language, soft colors, approachable typography. Bespoke, high-end feel achieved purely through smart vanilla CSS — no heavy JS animation libraries.
 
 ### Color Palette
 | Role | Hex | Usage |
 |------|-----|-------|
-| Primary | `#0D9488` | Sidebar active, buttons, links |
-| Primary Light | `#5EEAD4` | Hover, chart accents |
-| Background | `#F9FAFB` | Main content area |
-| Sidebar | `#1E293B` | Sidebar background |
+| Primary | `#0D9488` (warm teal) | Buttons, links, active states, hero card bg |
+| Primary Light | `#5EEAD4` (soft mint) | Hover states, chart accents |
+| Background | `#F0FDFA` (faint teal tint) | Main content area — warmer than clinical white |
+| Sidebar | `#064E3B` (deep pine green) | Sidebar background — harmonizes with teal |
 | Cards | `#FFFFFF` | Card backgrounds |
-| Success | `#10B981` | Above target |
-| Warning | `#F59E0B` | Below target (amber, not red) |
+| Card Shadow | `rgba(13, 148, 136, 0.08)` | **Tinted teal shadows** — premium feel via one CSS line |
+| Success | `#10B981` (encouraging green) | Above target |
+| Warning | `#F59E0B` (gentle amber) | Below target — NOT red |
 | Text | `#1F2937` | Primary text |
 | Muted | `#6B7280` | Secondary text |
 
+> **Key design choice**: Tinted shadows instead of grey/black. Cards cast a faint teal glow: `box-shadow: 0 4px 12px rgba(13, 148, 136, 0.08);` — adds depth with zero complexity.
+
 ### Typography
-- **Headings**: Nunito (warm, rounded)
-- **Body**: Source Sans 3 (clean, readable)
-- Both support Arabic glyphs
+- **English Headings + Body**: **Plus Jakarta Sans** — geometric, modern, makes numerical data look beautiful on dashboards
+- **Arabic Headings + Body**: **Cairo** — rounded, contemporary, refined feel that pairs naturally with Plus Jakarta Sans
+- Both are free Google Fonts with full weight range
+
+### Iconography
+- **Lucide Icons** — consistent modern line-art style
+- Included via CDN or inline SVGs (zero font file dependencies)
+- Used for sidebar navigation, summary cards, action buttons, toast notifications
 
 ### Layout
-- **Sidebar** (left, 250px): Dark slate, icons + labels, collapses to icons on tablet
-- **Top bar** (horizontal): Welcome message, language toggle (EN/AR), role badge, logout
-- **Content**: Cards with `border-radius: 12px`, subtle shadows
-- **RTL**: Full mirror layout when Arabic is selected (`dir="rtl"`)
+- **Sidebar** (left, 250px): Deep pine green (`#064E3B`), Lucide icons + labels, collapses to icons on tablet
+- **Top bar** (horizontal): Welcome message, language toggle (EN/AR), 🔔 bell badge, role badge, logout
+- **Content**: Cards with `border-radius: 12px`, tinted teal shadows
+- **RTL**: Full mirror layout when Arabic is selected (`dir="rtl"`) — sidebar moves to right
+
+### Visual Hierarchy
+- **Hero Card**: The "Target Achievement" summary card gets special treatment — solid teal background (`#0D9488`) with white text. Anchors the page and draws the eye immediately. Other summary cards remain white with teal accents.
+- **Leaderboard "You" Row**: The logged-in user's row is emphasized with a thicker teal left border, subtle teal glow shadow, and bolder font weight — pops out of the list without being garish.
+
+### Lightweight CSS Motion (no JS libraries)
+- **Hover lifts**: `transition: transform 0.2s ease;` → `transform: translateY(-3px);` on summary cards and buttons
+- **Soft entrance**: CSS `@keyframes fadeIn` on the main content wrapper — dashboard fades in smoothly on load
+- **Progress bars**: Animated fill with CSS `@keyframes` on page load
+- **Dashboard data**: Staggered fade-in via `animation-delay` when `fetch()` data loads
 
 ### Encouraging Language (Bilingual)
 | Context | English | Arabic |
@@ -427,9 +446,10 @@ Percentages rounded to 1 decimal place.
 ### Dashboard Components
 
 **Staff Dashboard:**
-- 3 summary cards (reports/target/goals)
-- Monthly trend bar chart with target line (Chart.js)
-- Anonymized leaderboard ("You" highlighted, others as "Staff A/B/C")
+- **Hero card**: Target Achievement (solid teal bg, white text) — visually dominant
+- 2 secondary summary cards (reports this month, goals in progress) — white bg, teal accents
+- Monthly trend bar chart with dashed target line (Chart.js)
+- Anonymized leaderboard ("You" row highlighted with teal border + glow, others as "Staff A/B/C")
 
 **Admin Dashboard:**
 - Summary cards (total staff, pending approvals, team reports)
