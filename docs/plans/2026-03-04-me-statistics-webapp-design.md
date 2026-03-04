@@ -188,7 +188,7 @@ ME_Statistics/
 | created_at | DateTime | |
 | updated_at | DateTime | |
 
-### 4.4 MonthlyReport (SDR)
+### 4.4 MonthlyReport (Statistical Data Report - SDR)
 
 | Column | Type | Notes |
 |--------|------|-------|
@@ -218,7 +218,7 @@ ME_Statistics/
 | after_json | Text | Snapshot after change |
 | created_at | DateTime | Immutable timestamp (Asia/Riyadh) |
 
-### 4.7 Notification
+### 4.6 Notification
 
 | Column | Type | Notes |
 |--------|------|-------|
@@ -230,7 +230,7 @@ ME_Statistics/
 | is_read | Boolean | Default `False` |
 | created_at | DateTime | |
 
-### 4.6 SystemConfig
+### 4.7 SystemConfig
 
 | Column | Type | Notes |
 |--------|------|-------|
@@ -473,52 +473,7 @@ Percentages rounded to 1 decimal place.
 
 ---
 
-## 14. Implementation Phases
-
-### Phase 1: Foundation
-- Scaffold app structure, blueprints, extensions
-- SQLAlchemy models + Flask-Migrate
-- Auth (login/register/logout) + role decorators
-- Seed initial admin
-
-### Phase 2: Core Features
-- Monthly report logging (CRUD + unique constraint)
-- Goals + Tasks CRUD
-- Admin user management (create/edit/deactivate/reactivate)
-- Per-user workflow toggles
-
-### Phase 3: Dashboards
-- Staff dashboard (trend chart, anonymized leaderboard)
-- Admin dashboard (full leaderboard, comparison chart)
-- API endpoints for `fetch()`
-- Approval queue (for users with approval enabled)
-
-### Phase 4: Admin Settings, Export, Notifications & Polish
-- System config page
-- Target snapshots on MonthlyReport
-- Encouraging language + motivational UX
-- Export feature: Excel (.xlsx) + PDF generation
-- Staff export (own data) + Admin export (individual + team)
-- Preset periods (month/quarter/year) + custom range
-- Toast notifications (success/warning/error/info)
-- Bell badge notifications (persistent, read/unread)
-- Achievement toasts (milestone celebrations)
-
-### Phase 5: Bilingual & RTL
-- Translation keys for all UI text
-- EN/AR language files
-- RTL layout mirroring
-- Language toggle + user preference
-
-### Phase 6: Audit, Testing & Deployment
-- Full audit coverage on all mutations
-- Test suite (unit, integration, e2e)
-- Deployment config (Gunicorn, Nginx, backup scripts)
-- Pilot readiness checklist
-
----
-
-## 15. Export & Reports
+## 14. Export & Reports
 
 ### Who Can Export
 | User | Can Export |
@@ -548,7 +503,7 @@ Percentages rounded to 1 decimal place.
 | Sheet/Section | Contents |
 |---------------|----------|
 | Leaderboard | Rank, Name, YTD Total, Avg Monthly, Target, Achievement % |
-| Monthly Breakdown | All staff × all months matrix (mirrors original Excel SDR) |
+| Monthly Breakdown | All staff × all months matrix (mirrors original Excel Statistical Data Report (SDR)) |
 | Goals Overview | Staff, Goal count, % completed |
 | Executive Summary | Department totals, averages, highlights |
 
@@ -565,7 +520,7 @@ Percentages rounded to 1 decimal place.
 
 ---
 
-## 16. Notification System
+## 15. Notification System
 
 ### Two Notification Types
 
@@ -611,6 +566,51 @@ Achievement toasts use a distinct style — gold-accented card with a subtle cel
 | Admin rejects goal | That staff | "Goal needs revision" |
 | Admin assigns goal | That staff | "New goal assigned to you" |
 | Admin approves report | That staff | "Report approved ✅" |
+
+---
+
+## 16. Implementation Phases
+
+### Phase 1: Foundation
+- Scaffold app structure, blueprints, extensions
+- SQLAlchemy models + Flask-Migrate
+- Auth (login/register/logout) + role decorators
+- Seed initial admin
+
+### Phase 2: Core Features
+- Monthly report logging (CRUD + unique constraint)
+- Goals + Tasks CRUD
+- Admin user management (create/edit/deactivate/reactivate)
+- Per-user workflow toggles
+
+### Phase 3: Dashboards
+- Staff dashboard (trend chart, anonymized leaderboard)
+- Admin dashboard (full leaderboard, comparison chart)
+- API endpoints for `fetch()`
+- Approval queue (for users with approval enabled)
+
+### Phase 4: Admin Settings, Export, Notifications & Polish
+- System config page
+- Target snapshots on MonthlyReport
+- Encouraging language + motivational UX
+- Export feature: Excel (.xlsx) + PDF generation
+- Staff export (own data) + Admin export (individual + team)
+- Preset periods (month/quarter/year) + custom range
+- Toast notifications (success/warning/error/info)
+- Bell badge notifications (persistent, read/unread)
+- Achievement toasts (milestone celebrations)
+
+### Phase 5: Bilingual & RTL
+- Translation keys for all UI text
+- EN/AR language files
+- RTL layout mirroring
+- Language toggle + user preference
+
+### Phase 6: Audit, Testing & Deployment
+- Full audit coverage on all mutations
+- Test suite (unit, integration, e2e)
+- Deployment config (Gunicorn, Nginx, backup scripts)
+- Pilot readiness checklist
 
 ---
 
