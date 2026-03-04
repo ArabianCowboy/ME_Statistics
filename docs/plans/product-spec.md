@@ -1,4 +1,4 @@
-# ME Statistics — Ultimate Combined Design Document
+# ME Statistics — Product Specification
 
 > **Date**: 2026-03-04
 > **Version**: 2.3 (Combined from 4 plans + export + notifications + UI enhancements)

@@ -1,7 +1,7 @@
 # ME Statistics — Implementation Roadmap
 
 > **Created**: 2026-03-04
-> **Based on**: [Design Document v2.3](file:///c:/Users/Midoxp/Desktop/AI_Project/ME_Statistics/docs/plans/2026-03-04-me-statistics-webapp-design.md)
+> **Based on**: [Product Spec v2.3](./product-spec.md)
 > **Status**: Ready to begin
 
 ---
