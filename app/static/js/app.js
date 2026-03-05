@@ -2,6 +2,7 @@
 
 let staffTrendChart = null;
 let adminCompareChart = null;
+let dashboardInitialized = false;
 
 function initToasts() {
   const stack = document.querySelector("[data-toast-stack]");
@@ -80,6 +81,7 @@ function renderStaffTrendChart(payload) {
 
   if (staffTrendChart) {
     staffTrendChart.destroy();
+    staffTrendChart = null;
   }
 
   staffTrendChart = new window.Chart(context, {
@@ -107,6 +109,7 @@ function renderStaffTrendChart(payload) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: false,
       plugins: {
         legend: {
           position: "bottom"
@@ -150,10 +153,11 @@ function renderStaffLeaderboard(rows) {
 
 async function initStaffDashboard() {
   const container = document.getElementById("staff-dashboard");
-  if (!container) {
+  if (!container || dashboardInitialized) {
     return;
   }
 
+  dashboardInitialized = true;
   const year = Number(container.dataset.year || new Date().getFullYear());
 
   try {
@@ -165,6 +169,7 @@ async function initStaffDashboard() {
     renderStaffLeaderboard(leaderboard);
   } catch (error) {
     console.error("Failed loading staff dashboard", error);
+    dashboardInitialized = false;
   }
 }
 
@@ -182,6 +187,7 @@ function renderAdminComparison(payload) {
 
   if (adminCompareChart) {
     adminCompareChart.destroy();
+    adminCompareChart = null;
   }
 
   const palette = ["#0D9488", "#2563EB", "#F59E0B", "#DC2626", "#7C3AED"];
@@ -204,6 +210,7 @@ function renderAdminComparison(payload) {
     options: {
       responsive: true,
       maintainAspectRatio: false,
+      animation: false,
       plugins: {
         legend: {
           position: "bottom"

@@ -49,6 +49,9 @@ venv.bak/
 *.secret
 secrets.json
 
+# Test credentials (keep for local dev reference)
+# TEST_CREDENTIALS.md is intentionally tracked for dev convenience
+
 # Jupyter Notebook
 .ipynb_checkpoints
 

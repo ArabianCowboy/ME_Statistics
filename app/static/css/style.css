@@ -393,8 +393,9 @@ label {
 }
 
 .chart-card canvas {
-  width: 100%;
-  min-height: 260px;
+  width: 100% !important;
+  height: 260px !important;
+  max-height: 260px;
 }
 
 .is-current-user {
