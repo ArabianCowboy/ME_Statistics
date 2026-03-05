@@ -7,8 +7,9 @@
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-header__title">Admin Dashboard</h1>
-        <p class="page-header__subtitle">Team overview, approvals, and performance tracking — {{ year }}.</p>
+        <h1 class="page-header__title" data-i18n="page.admin_dashboard">Admin Dashboard</h1>
+        <p class="page-header__subtitle" data-i18n="page.admin_dashboard_sub">Team overview, approvals, and performance
+            tracking — {{ year }}.</p>
     </div>
 </div>
 
@@ -24,7 +25,7 @@
                 <path d="M16 3.13a4 4 0 0 1 0 7.75" />
             </svg>
         </div>
-        <div class="card__label">Active Staff</div>
+        <div class="card__label" data-i18n="card.active_staff">Active Staff</div>
         <div class="card__value">{{ total_staff }}</div>
         {% if pending_registrations > 0 %}
         <div class="card__change card__change--down">{{ pending_registrations }} pending registration{{ 's' if
@@ -41,14 +42,15 @@
                 <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
         </div>
-        <div class="card__label">Pending Approvals</div>
+        <div class="card__label" data-i18n="card.pending_approvals">Pending Approvals</div>
         <div class="card__value">{{ pending_count }}</div>
     </div>
 
     <div class="card card--hero">
-        <div class="card__label">Team YTD Total</div>
+        <div class="card__label" data-i18n="card.team_ytd">Team YTD Total</div>
         <div class="card__value">{{ team_ytd }}</div>
-        <div class="card__change" style="color: rgba(255,255,255,0.8)">{{ year }} reports logged</div>
+        <div class="card__change" style="color: rgba(255,255,255,0.8)" data-i18n="card.reports_logged">{{ year }}
+            reports logged</div>
     </div>
 </div>
 
@@ -64,21 +66,21 @@
                 <line x1="12" y1="8" x2="12" y2="12" />
                 <line x1="12" y1="16" x2="12.01" y2="16" />
             </svg>
-            Approval Queue
+            <span data-i18n="queue.title">Approval Queue</span>
         </h3>
     </div>
 
     {% if pending_goals %}
-    <h4 class="queue-section-label">Pending Goals</h4>
+    <h4 class="queue-section-label" data-i18n="queue.pending_goals">Pending Goals</h4>
     <div class="data-table-wrapper mb-4" style="box-shadow:none;">
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Staff</th>
-                    <th>Goal</th>
-                    <th>Priority</th>
-                    <th>Submitted</th>
-                    <th>Actions</th>
+                    <th data-i18n="th.staff">Staff</th>
+                    <th data-i18n="th.goal">Goal</th>
+                    <th data-i18n="th.priority">Priority</th>
+                    <th data-i18n="th.submitted">Submitted</th>
+                    <th data-i18n="th.actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -123,16 +125,16 @@
     {% endif %}
 
     {% if pending_reports %}
-    <h4 class="queue-section-label">Pending Reports</h4>
+    <h4 class="queue-section-label" data-i18n="queue.pending_reports">Pending Reports</h4>
     <div class="data-table-wrapper" style="box-shadow:none;">
         <table class="data-table">
             <thead>
                 <tr>
-                    <th>Staff</th>
-                    <th>Period</th>
-                    <th>Count</th>
-                    <th>Submitted</th>
-                    <th>Actions</th>
+                    <th data-i18n="th.staff">Staff</th>
+                    <th data-i18n="th.period">Period</th>
+                    <th data-i18n="th.count">Count</th>
+                    <th data-i18n="th.submitted">Submitted</th>
+                    <th data-i18n="th.actions">Actions</th>
                 </tr>
             </thead>
             <tbody>
@@ -178,17 +180,17 @@
 <!-- ═══ Leaderboard ═══ -->
 <div class="card card--no-hover mb-6">
     <div class="card__header-row">
-        <h3 class="card__section-title">Team Leaderboard — {{ year }}</h3>
+        <h3 class="card__section-title" data-i18n="lb.title">Team Leaderboard — {{ year }}</h3>
     </div>
     <div class="data-table-wrapper" style="box-shadow:none;">
         <table class="data-table" id="admin-leaderboard">
             <thead>
                 <tr>
-                    <th>Rank</th>
-                    <th>Name</th>
-                    <th>YTD Total</th>
-                    <th>Target</th>
-                    <th>Achievement</th>
+                    <th data-i18n="th.rank">Rank</th>
+                    <th data-i18n="th.name">Name</th>
+                    <th data-i18n="th.ytd_total">YTD Total</th>
+                    <th data-i18n="th.target">Target</th>
+                    <th data-i18n="th.achievement">Achievement</th>
                 </tr>
             </thead>
             <tbody id="admin-leaderboard-body">
@@ -203,7 +205,7 @@
 <!-- ═══ Staff Comparison ═══ -->
 <div class="card card--no-hover">
     <div class="card__header-row">
-        <h3 class="card__section-title">Staff Comparison</h3>
+        <h3 class="card__section-title" data-i18n="compare.title">Staff Comparison</h3>
     </div>
     <div class="comparison-controls">
         <div class="comparison-checkboxes" id="staff-checkboxes">
@@ -221,13 +223,13 @@
                 <path d="M12 20V4" />
                 <path d="M6 20v-6" />
             </svg>
-            Compare
+            <span data-i18n="compare.btn">Compare</span>
         </button>
     </div>
     <div class="chart-container" id="compare-chart-container" style="display:none;">
         <canvas id="compareChart"></canvas>
     </div>
-    <div id="compare-empty" class="text-center text-secondary" style="padding:24px;">
+    <div id="compare-empty" class="text-center text-secondary" style="padding:24px;" data-i18n="compare.hint">
         Select staff members above and click Compare to see the chart.
     </div>
 </div>

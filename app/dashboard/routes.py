@@ -26,15 +26,15 @@ def _current_year():
 def _encouraging_message(achievement_pct):
     """Pick an encouraging message based on achievement percentage."""
     if achievement_pct is None:
-        return {"text": "Set a target to track progress! 📊", "emoji": "📊"}
+        return {"text": "Set a target to track progress! 📊", "emoji": "📊", "key": "set_target"}
     elif achievement_pct >= 100:
-        return {"text": "Outstanding work! 🌟", "emoji": "🌟"}
+        return {"text": "Outstanding work! 🌟", "emoji": "🌟", "key": "outstanding"}
     elif achievement_pct >= 80:
-        return {"text": "Almost there! 🎯", "emoji": "🎯"}
+        return {"text": "Almost there! 🎯", "emoji": "🎯", "key": "almost"}
     elif achievement_pct >= 50:
-        return {"text": "You've got this! 💪", "emoji": "💪"}
+        return {"text": "You've got this! 💪", "emoji": "💪", "key": "got_this"}
     else:
-        return {"text": "Every report counts! 🚀", "emoji": "🚀"}
+        return {"text": "Every report counts! 🚀", "emoji": "🚀", "key": "every_counts"}
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

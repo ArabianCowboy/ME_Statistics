@@ -9,7 +9,7 @@
 <div class="dashboard-hero">
     <div class="hero-card">
         <div class="hero-card__content">
-            <div class="hero-card__label">This Month's Achievement</div>
+            <div class="hero-card__label" data-i18n="card.this_month">This Month's Achievement</div>
             <div class="hero-card__value">
                 {% if achievement_pct is not none %}
                 {{ achievement_pct }}%
@@ -29,7 +29,7 @@
                 {% endif %}
                 {% endif %}
             </div>
-            <div class="hero-card__encourage">{{ encourage.text }}</div>
+            <div class="hero-card__encourage" data-i18n="encourage.{{ encourage.key }}">{{ encourage.text }}</div>
         </div>
         <div class="hero-card__icon">
             <svg xmlns="http://www.w3.org/2000/svg" width="64" height="64" viewBox="0 0 24 24" fill="none"
@@ -51,7 +51,7 @@
                 <path d="M14 2v4a2 2 0 0 0 2 2h4" />
             </svg>
         </div>
-        <div class="card__label">YTD Reports</div>
+        <div class="card__label" data-i18n="card.reports_ytd">YTD Reports</div>
         <div class="card__value">{{ ytd_total }}</div>
     </div>
 
@@ -64,7 +64,7 @@
                 <circle cx="12" cy="12" r="2" />
             </svg>
         </div>
-        <div class="card__label">Goals in Progress</div>
+        <div class="card__label" data-i18n="card.goals_label">Goals in Progress</div>
         <div class="card__value">{{ goals_in_progress }}<span class="card__value-sub"> / {{ goals_total }}</span></div>
     </div>
 
@@ -78,7 +78,7 @@
                 <line x1="3" y1="10" x2="21" y2="10" />
             </svg>
         </div>
-        <div class="card__label">Current Month</div>
+        <div class="card__label" data-i18n="card.this_month_label">Current Month</div>
         <div class="card__value">{{ reports_this_month }}<span class="card__value-sub"> reports</span></div>
     </div>
 </div>
@@ -86,7 +86,7 @@
 <!-- ═══ Monthly Trend Chart ═══ -->
 <div class="card card--no-hover mb-6">
     <div class="card__header-row">
-        <h3 class="card__section-title">Monthly Trend — {{ year }}</h3>
+        <h3 class="card__section-title" data-i18n="chart.trend">Monthly Trend — {{ year }}</h3>
     </div>
     <div class="chart-container">
         <canvas id="trendChart"></canvas>
@@ -96,7 +96,7 @@
 <!-- ═══ Leaderboard ═══ -->
 <div class="card card--no-hover">
     <div class="card__header-row">
-        <h3 class="card__section-title">Leaderboard — {{ year }}</h3>
+        <h3 class="card__section-title" data-i18n="lb.title">Leaderboard — {{ year }}</h3>
     </div>
     <div class="data-table-wrapper" style="box-shadow:none;">
         <table class="data-table" id="leaderboard-table">

@@ -7,9 +7,9 @@
 {% block content %}
 <div class="page-header">
     <div>
-        <h1 class="page-header__title">Manage Users</h1>
+        <h1 class="page-header__title" data-i18n="page.users">Manage Users</h1>
         <p class="page-header__subtitle">
-            Create, edit, and manage user accounts.
+            <span data-i18n="users.subtitle">Create, edit, and manage user accounts.</span>
             {% if pending_count > 0 %}
             <span class="badge badge--amber">{{ pending_count }} pending approval{{ 's' if pending_count > 1 }}</span>
             {% endif %}
@@ -23,7 +23,7 @@
             <line x1="19" y1="8" x2="19" y2="14" />
             <line x1="22" y1="11" x2="16" y2="11" />
         </svg>
-        New User
+        <span data-i18n="action.new_user">New User</span>
     </a>
 </div>
 
@@ -31,12 +31,12 @@
     <table class="data-table" id="users-table">
         <thead>
             <tr>
-                <th>User</th>
-                <th>Role</th>
-                <th>Target</th>
-                <th>Status</th>
-                <th>Joined</th>
-                <th>Actions</th>
+                <th data-i18n="th.user">User</th>
+                <th data-i18n="th.role">Role</th>
+                <th data-i18n="th.target">Target</th>
+                <th data-i18n="th.status">Status</th>
+                <th data-i18n="th.joined">Joined</th>
+                <th data-i18n="th.actions">Actions</th>
             </tr>
         </thead>
         <tbody>
@@ -61,11 +61,11 @@
                 <td class="fw-600">{{ user.monthly_target }}</td>
                 <td>
                     {% if not user.is_active %}
-                    <span class="status-badge status-badge--danger">Inactive</span>
+                    <span class="status-badge status-badge--danger" data-i18n="status.inactive">Inactive</span>
                     {% elif not user.is_approved %}
-                    <span class="status-badge status-badge--warning">Pending</span>
+                    <span class="status-badge status-badge--warning" data-i18n="status.pending">Pending</span>
                     {% else %}
-                    <span class="status-badge status-badge--success">Active</span>
+                    <span class="status-badge status-badge--success" data-i18n="status.active">Active</span>
                     {% endif %}
                 </td>
                 <td class="text-secondary text-sm">{{ user.created_at.strftime('%b %d, %Y') }}</td>

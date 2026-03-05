@@ -2284,3 +2284,207 @@ tr:last-child td {
     padding-top: 16px;
     border-top: 1px solid var(--color-border);
 }
+
+
+/* ══════════════════════════════════════════════════════════════
+   PHASE 5 — RTL (Right-to-Left) LAYOUT
+   ══════════════════════════════════════════════════════════════ */
+
+/* ── Sidebar ─────────────────────────────────────────────── */
+[dir="rtl"] .sidebar {
+    left: auto;
+    right: 0;
+}
+
+[dir="rtl"] .main-content,
+[dir="rtl"] .topbar {
+    margin-left: 0;
+    margin-right: 250px;
+}
+
+[dir="rtl"] .sidebar__header {
+    direction: rtl;
+    flex-direction: row-reverse;
+    justify-content: flex-end;
+}
+
+[dir="rtl"] .sidebar__nav {
+    direction: rtl;
+}
+
+[dir="rtl"] .sidebar__link {
+    direction: rtl;
+    text-align: right;
+    justify-content: flex-start;
+}
+
+[dir="rtl"] .sidebar__link--active {
+    border-left: none;
+    border-right-color: var(--color-primary-light);
+}
+
+[dir="rtl"] .sidebar__link svg {
+    margin-right: 0;
+    margin-left: 12px;
+}
+
+[dir="rtl"] .sidebar__section-label {
+    text-align: right;
+    padding-right: 20px;
+    padding-left: 0;
+}
+
+[dir="rtl"] .sidebar__footer {
+    direction: rtl;
+}
+
+[dir="rtl"] .sidebar__user {
+    flex-direction: row-reverse;
+    text-align: right;
+}
+
+[dir="rtl"] .sidebar__avatar {
+    margin-right: 0;
+    margin-left: 10px;
+}
+
+/* ── Topbar ──────────────────────────────────────────────── */
+[dir="rtl"] .topbar {
+    direction: rtl;
+    text-align: right;
+}
+
+[dir="rtl"] .topbar__welcome {
+    text-align: right;
+}
+
+[dir="rtl"] .topbar__actions {
+    flex-direction: row-reverse;
+}
+
+/* ── Main Content ────────────────────────────────────────── */
+[dir="rtl"] .page-header,
+[dir="rtl"] .page-header__title,
+[dir="rtl"] .page-header__subtitle {
+    text-align: right;
+}
+
+[dir="rtl"] .card {
+    text-align: right;
+}
+
+[dir="rtl"] .form-group {
+    text-align: right;
+}
+
+[dir="rtl"] .form-label {
+    text-align: right;
+}
+
+/* ── Dashboard Cards ─────────────────────────────────────── */
+[dir="rtl"] .summary-cards {
+    direction: rtl;
+}
+
+[dir="rtl"] .dashboard-hero {
+    text-align: right;
+}
+
+/* ── Leaderboard ─────────────────────────────────────────── */
+[dir="rtl"] .lb-row {
+    direction: rtl;
+}
+
+[dir="rtl"] .lb-row--you {
+    border-left: none;
+    border-right: 3px solid var(--color-primary);
+}
+
+/* ── Toast ────────────────────────────────────────────────── */
+[dir="rtl"] #toast-container {
+    right: auto;
+    left: 20px;
+}
+
+[dir="rtl"] .toast {
+    flex-direction: row-reverse;
+    border-left: none;
+    border-right: 4px solid transparent;
+    transform: translateX(-120%);
+}
+
+[dir="rtl"] .toast--visible {
+    transform: translateX(0);
+}
+
+[dir="rtl"] .toast--exit {
+    transform: translateX(-120%);
+}
+
+[dir="rtl"] .toast--success {
+    border-right-color: var(--color-success);
+}
+
+[dir="rtl"] .toast--error {
+    border-right-color: var(--color-danger);
+}
+
+[dir="rtl"] .toast--warning {
+    border-right-color: var(--color-warning);
+}
+
+[dir="rtl"] .toast--info {
+    border-right-color: var(--color-primary);
+}
+
+/* ── Bell Dropdown ───────────────────────────────────────── */
+[dir="rtl"] .bell-dropdown {
+    right: auto;
+    left: 0;
+}
+
+[dir="rtl"] .bell-item {
+    text-align: right;
+    direction: rtl;
+}
+
+/* ── Tables ──────────────────────────────────────────────── */
+[dir="rtl"] .data-table th,
+[dir="rtl"] .data-table td {
+    text-align: right;
+}
+
+/* ── Toggle Items ────────────────────────────────────────── */
+[dir="rtl"] .toggle-item {
+    flex-direction: row-reverse;
+}
+
+[dir="rtl"] .toggle-item__info {
+    text-align: right;
+}
+
+/* ── Form Grid ───────────────────────────────────────────── */
+[dir="rtl"] .form-grid {
+    direction: rtl;
+}
+
+/* ── Approval Queue ──────────────────────────────────────── */
+[dir="rtl"] .approval-item {
+    direction: rtl;
+    text-align: right;
+}
+
+/* ── Page Actions (buttons) ──────────────────────────────── */
+[dir="rtl"] .page-header {
+    flex-direction: row-reverse;
+}
+
+/* ── Comparison ──────────────────────────────────────────── */
+[dir="rtl"] .comparison-check {
+    direction: rtl;
+}
+
+/* ── Logout button icon flip ─────────────────────────────── */
+[dir="rtl"] .topbar__logout-btn svg {
+    transform: scaleX(-1);
+}
