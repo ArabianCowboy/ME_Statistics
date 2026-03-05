@@ -1,0 +1,113 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('users.management_title') }} | {{ _t('app.title') }}{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>{{ _t('users.management_title') }}</h2>
+  <p>{{ _t('users.management_hint') }}</p>
+
+  <form method="post" class="form-grid" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div>
+      <label for="{{ form.full_name.id }}">{{ _t('field.full_name') }}</label>
+      {{ form.full_name(class_='input') }}
+      {% for error in form.full_name.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.username.id }}">{{ _t('field.username') }}</label>
+      {{ form.username(class_='input') }}
+      {% for error in form.username.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.email.id }}">{{ _t('field.email') }}</label>
+      {{ form.email(class_='input') }}
+      {% for error in form.email.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.password.id }}">{{ _t('field.password') }}</label>
+      {{ form.password(class_='input') }}
+      {% for error in form.password.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.role.id }}">{{ _t('field.role') }}</label>
+      {{ form.role(class_='input') }}
+      {% for error in form.role.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.monthly_target.id }}">{{ _t('field.monthly_target') }}</label>
+      {{ form.monthly_target(class_='input') }}
+      {% for error in form.monthly_target.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <label class="inline-check">{{ form.is_approved() }} {{ _t('field.approved') }}</label>
+    <label class="inline-check">{{ form.goal_approval_required() }} {{ _t('field.goal_approval_required') }}</label>
+    <label class="inline-check">{{ form.report_approval_required() }} {{ _t('field.report_approval_required') }}</label>
+    <label class="inline-check">{{ form.can_create_goals() }} {{ _t('field.can_create_goals') }}</label>
+
+    <div class="full-width actions-row">
+      {{ form.submit(class_='button', value=_t('action.create_user')) }}
+    </div>
+  </form>
+</section>
+
+<section class="card">
+  <h3>{{ _t('users.current_users') }}</h3>
+  <div class="table-wrap">
+    <table class="table">
+      <thead>
+        <tr>
+          <th>{{ _t('field.name') }}</th>
+          <th>{{ _t('field.role') }}</th>
+          <th>{{ _t('field.approval') }}</th>
+          <th>{{ _t('field.active') }}</th>
+          <th>{{ _t('field.monthly_target') }}</th>
+          <th>{{ _t('field.actions') }}</th>
+        </tr>
+      </thead>
+      <tbody>
+        {% for user in users %}
+        <tr>
+          <td>{{ user.full_name }}</td>
+          <td>{{ user.role.value }}</td>
+          <td>{{ user.is_approved }}</td>
+          <td>{{ user.is_active }}</td>
+          <td>{{ user.monthly_target }}</td>
+          <td class="table-actions stacked">
+            <a href="{{ url_for('users.edit_user', user_id=user.id) }}">{{ _t('action.edit') }}</a>
+
+            {% if user.is_active %}
+            <form method="post" action="{{ url_for('users.deactivate_user', user_id=user.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="link-button danger">{{ _t('action.deactivate') }}</button>
+            </form>
+            {% else %}
+            <form method="post" action="{{ url_for('users.reactivate_user', user_id=user.id) }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="link-button">{{ _t('action.reactivate') }}</button>
+            </form>
+            {% endif %}
+
+            <form method="post" action="{{ url_for('users.reset_password', user_id=user.id) }}" class="inline-reset">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <input type="password" name="password" class="input compact" placeholder="{{ _t('field.new_password') }}">
+              <button type="submit" class="link-button">{{ _t('action.reset_password') }}</button>
+            </form>
+          </td>
+        </tr>
+        {% else %}
+        <tr>
+          <td colspan="6" class="empty-cell">{{ _t('users.no_users') }}</td>
+        </tr>
+        {% endfor %}
+      </tbody>
+    </table>
+  </div>
+</section>
+{% endblock %}

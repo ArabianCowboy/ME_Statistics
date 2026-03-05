@@ -3,20 +3,21 @@
 ## Milestone 1: Foundation
 **Goal:** Establish the application foundation with core architecture, data model, authentication, and initial admin access.
 **Done when:** The app scaffold, blueprints, extensions, SQLAlchemy models, and migrations are in place; login/register/logout with role decorators works; and an initial admin account can be seeded.
-- [ ] Scaffold app structure with blueprints and app factory.
-- [ ] Set up extensions (`db`, `login_manager`, `csrf`, `babel`) and configuration.
+- [x] Scaffold app structure with blueprints and app factory.
+- [x] Set up extensions (`db`, `login_manager`, `csrf`, `babel`) and configuration.
 - [ ] Implement SQLAlchemy models and initialize Flask-Migrate.
-- [ ] Build authentication flow (login/register/logout) and role/access decorators.
-- [ ] Add script to seed the initial admin account.
+- [x] Build authentication flow (login/register/logout) and role/access decorators.
+- [x] Add script to seed the initial admin account.
+- [ ] Generate and apply initial migration once Python package tooling is available in environment.
 
 ## Milestone 2: Core Features
 **Goal:** Deliver the primary operational workflows for report logging, goals/tasks tracking, and admin user control.
 **Done when:** Monthly reports, goals, and tasks are manageable via CRUD flows; monthly report uniqueness is enforced; admins can create/edit/deactivate/reactivate users; and per-user workflow toggles are available.
-- [ ] Implement monthly report CRUD with (`user_id`, `year`, `month`) uniqueness.
-- [ ] Implement goals CRUD.
-- [ ] Implement tasks CRUD.
-- [ ] Implement admin user management (create/edit/deactivate/reactivate).
-- [ ] Implement per-user workflow toggles (`goal_approval_required`, `report_approval_required`, `can_create_goals`).
+- [x] Implement monthly report CRUD with (`user_id`, `year`, `month`) uniqueness.
+- [x] Implement goals CRUD.
+- [x] Implement tasks CRUD.
+- [x] Implement admin user management (create/edit/deactivate/reactivate).
+- [x] Implement per-user workflow toggles (`goal_approval_required`, `report_approval_required`, `can_create_goals`).
 
 ## Milestone 3: Dashboards
 **Goal:** Provide role-based dashboards that surface performance trends, rankings, and approval work.

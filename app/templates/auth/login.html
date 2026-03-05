@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('auth.sign_in') }} | {{ _t('app.title') }}{% endblock %}
+
+{% block content %}
+<section class="card auth-card">
+  <h2>{{ _t('auth.sign_in') }}</h2>
+  <p>{{ _t('auth.login_intro') }}</p>
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    <label for="{{ form.username.id }}">{{ _t('field.username') }}</label>
+    {{ form.username(class_="input") }}
+    {% for error in form.username.errors %}
+    <small class="error">{{ error }}</small>
+    {% endfor %}
+
+    <label for="{{ form.password.id }}">{{ _t('field.password') }}</label>
+    {{ form.password(class_="input") }}
+    {% for error in form.password.errors %}
+    <small class="error">{{ error }}</small>
+    {% endfor %}
+
+    <label class="inline-check">
+      {{ form.remember_me() }} {{ _t('auth.remember_me') }}
+    </label>
+
+    {{ form.submit(class_="button", value=_t('auth.sign_in')) }}
+  </form>
+  <p class="auth-footnote">
+    {{ _t('auth.new_here') }} <a href="{{ url_for('auth.register') }}">{{ _t('auth.create_account') }}</a>.
+  </p>
+</section>
+{% endblock %}

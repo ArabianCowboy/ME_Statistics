@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}500 - {{ _t('error.server_title') }}{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>500 - {{ _t('error.server_title') }}</h2>
+  <p>{{ _t('error.server_message') }}</p>
+</section>
+{% endblock %}

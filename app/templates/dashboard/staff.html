@@ -1,0 +1,80 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('dashboard.staff_title') }} | {{ _t('app.title') }}{% endblock %}
+
+{% block content %}
+<section class="dashboard-wrap" id="staff-dashboard" data-year="{{ year }}">
+  <div class="dashboard-head">
+    <h2>{{ _t('dashboard.staff_title') }}</h2>
+    <form method="get" class="inline-form compact-form">
+      <label for="year">{{ _t('field.year') }}</label>
+      <input id="year" class="input compact" type="number" min="2000" max="2100" name="year" value="{{ year }}">
+      <button class="button" type="submit">{{ _t('action.apply') }}</button>
+    </form>
+  </div>
+
+  <div class="dashboard-grid dashboard-grid-staff">
+    <article class="card hero-card">
+      <p>{{ _t('dashboard.target_achievement') }}</p>
+      <h3>{{ metrics.achievement_pct }}%</h3>
+      <small>{{ _t(metrics.encouragement_key) }}</small>
+    </article>
+
+    <article class="card summary-card">
+      <p>{{ _t('dashboard.this_month_reports') }}</p>
+      <h3>{{ metrics.this_month_total }}</h3>
+      <small>{{ _t('dashboard.target') }}: {{ metrics.this_month_target }}</small>
+    </article>
+
+    <article class="card summary-card">
+      <p>{{ _t('dashboard.goals_in_progress') }}</p>
+      <h3>{{ metrics.goals_in_progress }}</h3>
+      <small>{{ _t('dashboard.ytd_total') }}: {{ metrics.ytd_total }}</small>
+    </article>
+  </div>
+
+  <section class="card chart-card">
+    <h3>{{ _t('dashboard.monthly_trend') }}</h3>
+    <canvas id="staff-trend-chart" data-series='{{ metrics.series|tojson }}' data-target='{{ metrics.target_series|tojson }}' data-labels='{{ metrics.labels|tojson }}'></canvas>
+  </section>
+
+  <section class="card">
+    <h3>{{ _t('dashboard.leaderboard') }}</h3>
+    <div class="table-wrap">
+      <table class="table" id="staff-leaderboard-table">
+        <thead>
+          <tr>
+            <th>{{ _t('field.rank') }}</th>
+            <th>{{ _t('field.name') }}</th>
+            <th>{{ _t('field.ytd_total') }}</th>
+            <th>{{ _t('field.avg_monthly') }}</th>
+            <th>{{ _t('field.achievement') }}</th>
+          </tr>
+        </thead>
+        <tbody id="staff-leaderboard-body">
+          {% for row in leaderboard %}
+          <tr{% if row.is_current_user %} class="is-current-user"{% endif %}>
+            <td>{{ row.rank }}</td>
+            <td>{{ row.display_name }}</td>
+            <td>{{ row.ytd_total }}</td>
+            <td>{{ row.avg_monthly }}</td>
+            <td>{{ row.achievement_pct }}%</td>
+          </tr>
+          {% else %}
+          <tr><td class="empty-cell" colspan="5">{{ _t('dashboard.empty_leaderboard') }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card export-card">
+    <h3>{{ _t('export.title') }}</h3>
+    <p>{{ _t('export.staff_hint') }}</p>
+    <div class="export-actions">
+      <a class="button" href="{{ url_for('export.export_my_report', format='xlsx', period='year', year=year) }}">{{ _t('export.download_xlsx') }}</a>
+      <a class="button button-secondary" href="{{ url_for('export.export_my_report', format='pdf', period='year', year=year) }}">{{ _t('export.download_pdf') }}</a>
+    </div>
+  </section>
+</section>
+{% endblock %}

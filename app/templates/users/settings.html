@@ -1,0 +1,45 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('users.settings_title') }} | {{ _t('app.title') }}{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>{{ _t('users.settings_title') }}</h2>
+  <p>{{ _t('users.settings_hint') }}</p>
+
+  <form method="post" class="form-grid" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div>
+      <label for="{{ form.department_name.id }}">{{ _t('field.department_name') }}</label>
+      {{ form.department_name(class_='input') }}
+      {% for error in form.department_name.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.fiscal_year_start.id }}">{{ _t('field.fiscal_year_start') }}</label>
+      {{ form.fiscal_year_start(class_='input') }}
+      {% for error in form.fiscal_year_start.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.default_language.id }}">{{ _t('field.default_language') }}</label>
+      {{ form.default_language(class_='input') }}
+      {% for error in form.default_language.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.default_monthly_target.id }}">{{ _t('field.default_monthly_target') }}</label>
+      {{ form.default_monthly_target(class_='input') }}
+      {% for error in form.default_monthly_target.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <label class="inline-check">{{ form.allow_self_registration() }} {{ _t('field.allow_self_registration') }}</label>
+    <label class="inline-check">{{ form.leaderboard_visible() }} {{ _t('field.leaderboard_visible') }}</label>
+
+    <div class="full-width actions-row">
+      {{ form.submit(class_='button', value=_t('action.save_settings')) }}
+    </div>
+  </form>
+</section>
+{% endblock %}

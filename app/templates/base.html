@@ -1,0 +1,133 @@
+<!doctype html>
+<html lang="{{ current_lang }}" dir="{{ current_dir }}">
+  <head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>{% block title %}{{ _t('app.title') }}{% endblock %}</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cairo:wght@400;500;700&family=Plus+Jakarta+Sans:wght@400;500;700;800&display=swap"
+      rel="stylesheet"
+    >
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+  </head>
+  <body>
+    <div class="layout">
+      {% if current_user.is_authenticated %}
+      <aside class="sidebar">
+        <div class="brand">
+          <h1>{{ _t('app.short_title') }}</h1>
+          <p>{{ _t('app.department') }}</p>
+        </div>
+        <nav class="nav-links">
+          <a href="{{ url_for('dashboard.staff_dashboard') }}">{{ _t('nav.dashboard') }}</a>
+          <a href="{{ url_for('logs.reports') }}">{{ _t('nav.reports') }}</a>
+          <a href="{{ url_for('logs.goals') }}">{{ _t('nav.goals') }}</a>
+          <a href="{{ url_for('logs.tasks') }}">{{ _t('nav.tasks') }}</a>
+          {% if current_user.is_admin %}
+          <a href="{{ url_for('dashboard.admin_dashboard') }}">{{ _t('nav.admin_dashboard') }}</a>
+          <a href="{{ url_for('users.manage_users') }}">{{ _t('nav.user_management') }}</a>
+          <a href="{{ url_for('users.system_settings') }}">{{ _t('nav.system_settings') }}</a>
+          {% endif %}
+        </nav>
+      </aside>
+      {% endif %}
+
+      <div class="main">
+        <header class="topbar">
+          <div>
+            <p class="topbar-kicker">{{ _t('topbar.welcome') }}</p>
+            <strong>
+              {% if current_user.is_authenticated %}
+                {{ current_user.full_name }}
+              {% else %}
+                {{ _t('topbar.guest') }}
+              {% endif %}
+            </strong>
+          </div>
+
+          {% if current_user.is_authenticated %}
+          <div class="topbar-actions">
+            <form method="post" action="{{ url_for('set_language', lang_code='en') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="lang-switch{% if current_lang == 'en' %} active{% endif %}" type="submit">EN</button>
+            </form>
+            <form method="post" action="{{ url_for('set_language', lang_code='ar') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="lang-switch{% if current_lang == 'ar' %} active{% endif %}" type="submit">AR</button>
+            </form>
+
+            <div class="bell-wrapper" data-bell-root>
+              <button class="bell-button" type="button" data-bell-toggle>
+                <span aria-hidden="true">&#128276;</span>
+                {% if notifications_unread_count > 0 %}
+                <span class="bell-badge">{{ notifications_unread_count }}</span>
+                {% endif %}
+              </button>
+              <div class="bell-menu" data-bell-menu>
+                <div class="bell-menu-head">
+                  <strong>{{ _t('notification.title') }}</strong>
+                  <form method="post" action="{{ url_for('users.mark_all_notifications_read') }}">
+                    <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                    <button type="submit" class="link-button">{{ _t('notification.mark_all_read') }}</button>
+                  </form>
+                </div>
+                <ul class="notification-list">
+                  {% if latest_notifications %}
+                    {% for item in latest_notifications %}
+                    <li class="notification-item{% if not item.is_read %} unread{% endif %}">
+                      <div>
+                        <p>{{ item.message }}</p>
+                        <small>{{ item.created_at.strftime('%Y-%m-%d %H:%M') }}</small>
+                      </div>
+                      {% if not item.is_read %}
+                      <form method="post" action="{{ url_for('users.mark_notification_read', notification_id=item.id) }}">
+                        <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                        <button type="submit" class="link-button">{{ _t('notification.mark_read') }}</button>
+                      </form>
+                      {% endif %}
+                    </li>
+                    {% endfor %}
+                  {% else %}
+                  <li class="notification-empty">{{ _t('notification.empty') }}</li>
+                  {% endif %}
+                </ul>
+              </div>
+            </div>
+
+            <span class="role-badge">{{ _t('topbar.role_' + current_user.role.value) }}</span>
+
+            <form method="post" action="{{ url_for('auth.logout') }}">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button type="submit" class="button button-secondary">{{ _t('auth.logout') }}</button>
+            </form>
+          </div>
+          {% endif %}
+        </header>
+
+        <main class="content">
+          {% with messages = get_flashed_messages(with_categories=true) %}
+            {% if messages %}
+            <section class="toast-stack" data-toast-stack>
+              {% for category, message in messages %}
+              <article class="toast toast-{{ category }}" data-toast>
+                <div class="toast-body">{{ message }}</div>
+                <button type="button" class="toast-close" aria-label="Dismiss" data-toast-close>&times;</button>
+                <span class="toast-progress"></span>
+              </article>
+              {% endfor %}
+            </section>
+            {% endif %}
+          {% endwith %}
+
+          {% block content %}{% endblock %}
+        </main>
+      </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.2/dist/chart.umd.min.js"></script>
+    <script src="{{ url_for('static', filename='js/app.js') }}"></script>
+    {% block scripts %}{% endblock %}
+  </body>
+</html>

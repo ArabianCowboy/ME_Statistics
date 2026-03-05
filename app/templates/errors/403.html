@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}403 - {{ _t('error.forbidden_title') }}{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>403 - {{ _t('error.forbidden_title') }}</h2>
+  <p>{{ _t('error.forbidden_message') }}</p>
+</section>
+{% endblock %}

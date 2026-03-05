@@ -1,0 +1,48 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('auth.register') }} | {{ _t('app.title') }}{% endblock %}
+
+{% block content %}
+<section class="card auth-card">
+  <h2>{{ _t('auth.create_account') }}</h2>
+  <p>{{ _t('auth.register_intro') }}</p>
+  <form method="post" novalidate>
+    {{ form.hidden_tag() }}
+
+    <label for="{{ form.full_name.id }}">{{ _t('field.full_name') }}</label>
+    {{ form.full_name(class_="input") }}
+    {% for error in form.full_name.errors %}
+    <small class="error">{{ error }}</small>
+    {% endfor %}
+
+    <label for="{{ form.username.id }}">{{ _t('field.username') }}</label>
+    {{ form.username(class_="input") }}
+    {% for error in form.username.errors %}
+    <small class="error">{{ error }}</small>
+    {% endfor %}
+
+    <label for="{{ form.email.id }}">{{ _t('field.email') }}</label>
+    {{ form.email(class_="input") }}
+    {% for error in form.email.errors %}
+    <small class="error">{{ error }}</small>
+    {% endfor %}
+
+    <label for="{{ form.password.id }}">{{ _t('field.password') }}</label>
+    {{ form.password(class_="input") }}
+    {% for error in form.password.errors %}
+    <small class="error">{{ error }}</small>
+    {% endfor %}
+
+    <label for="{{ form.confirm_password.id }}">{{ _t('field.confirm_password') }}</label>
+    {{ form.confirm_password(class_="input") }}
+    {% for error in form.confirm_password.errors %}
+    <small class="error">{{ error }}</small>
+    {% endfor %}
+
+    {{ form.submit(class_="button", value=_t('auth.create_account')) }}
+  </form>
+  <p class="auth-footnote">
+    {{ _t('auth.have_account') }} <a href="{{ url_for('auth.login') }}">{{ _t('auth.sign_in') }}</a>.
+  </p>
+</section>
+{% endblock %}

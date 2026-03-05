@@ -1,0 +1,134 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('dashboard.admin_title') }} | {{ _t('app.title') }}{% endblock %}
+
+{% block content %}
+<section class="dashboard-wrap" id="admin-dashboard" data-year="{{ year }}">
+  <div class="dashboard-head">
+    <h2>{{ _t('dashboard.admin_title') }}</h2>
+    <form method="get" class="inline-form compact-form">
+      <label for="year">{{ _t('field.year') }}</label>
+      <input id="year" class="input compact" type="number" min="2000" max="2100" name="year" value="{{ year }}">
+      <button class="button" type="submit">{{ _t('action.apply') }}</button>
+    </form>
+  </div>
+
+  <div class="dashboard-grid dashboard-grid-admin">
+    <article class="card summary-card">
+      <p>{{ _t('dashboard.total_staff') }}</p>
+      <h3>{{ summary.total_staff }}</h3>
+    </article>
+    <article class="card summary-card">
+      <p>{{ _t('dashboard.pending_approvals') }}</p>
+      <h3>{{ summary.pending_approvals }}</h3>
+    </article>
+    <article class="card summary-card">
+      <p>{{ _t('dashboard.team_reports') }}</p>
+      <h3>{{ summary.team_reports }}</h3>
+    </article>
+  </div>
+
+  <section class="card">
+    <h3>{{ _t('dashboard.approval_queue') }}</h3>
+
+    <div class="approval-columns">
+      <div>
+        <h4>{{ _t('dashboard.pending_goals') }}</h4>
+        <ul class="approval-list">
+          {% for item in pending_queue.goals %}
+          <li>
+            <div>
+              <strong>{{ item.user_name }}</strong>
+              <p>{{ item.title }}</p>
+            </div>
+            <form method="post" action="{{ url_for('dashboard.approve_item', item_type='goal', item_id=item.id) }}" class="approval-actions">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="button" type="submit" name="action" value="approve">{{ _t('action.approve') }}</button>
+              <button class="button button-secondary" type="submit" name="action" value="reject">{{ _t('action.reject') }}</button>
+            </form>
+          </li>
+          {% else %}
+          <li class="empty-cell">{{ _t('dashboard.no_pending_goals') }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+
+      <div>
+        <h4>{{ _t('dashboard.pending_reports') }}</h4>
+        <ul class="approval-list">
+          {% for item in pending_queue.reports %}
+          <li>
+            <div>
+              <strong>{{ item.user_name }}</strong>
+              <p>{{ item.year }}/{{ item.month }} - {{ item.report_count }}</p>
+            </div>
+            <form method="post" action="{{ url_for('dashboard.approve_item', item_type='report', item_id=item.id) }}" class="approval-actions">
+              <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+              <button class="button" type="submit" name="action" value="approve">{{ _t('action.approve') }}</button>
+              <button class="button button-secondary" type="submit" name="action" value="reject">{{ _t('action.reject') }}</button>
+            </form>
+          </li>
+          {% else %}
+          <li class="empty-cell">{{ _t('dashboard.no_pending_reports') }}</li>
+          {% endfor %}
+        </ul>
+      </div>
+    </div>
+  </section>
+
+  <section class="card">
+    <h3>{{ _t('dashboard.leaderboard') }}</h3>
+    <div class="table-wrap">
+      <table class="table">
+        <thead>
+          <tr>
+            <th>{{ _t('field.rank') }}</th>
+            <th>{{ _t('field.name') }}</th>
+            <th>{{ _t('field.ytd_total') }}</th>
+            <th>{{ _t('field.avg_monthly') }}</th>
+            <th>{{ _t('field.target') }}</th>
+            <th>{{ _t('field.achievement') }}</th>
+          </tr>
+        </thead>
+        <tbody id="admin-leaderboard-body">
+          {% for row in leaderboard %}
+          <tr>
+            <td>{{ row.rank }}</td>
+            <td>{{ row.display_name }}</td>
+            <td>{{ row.ytd_total }}</td>
+            <td>{{ row.avg_monthly }}</td>
+            <td>{{ row.target }}</td>
+            <td>{{ row.achievement_pct }}%</td>
+          </tr>
+          {% else %}
+          <tr><td class="empty-cell" colspan="6">{{ _t('dashboard.empty_leaderboard') }}</td></tr>
+          {% endfor %}
+        </tbody>
+      </table>
+    </div>
+  </section>
+
+  <section class="card chart-card">
+    <h3>{{ _t('dashboard.compare_chart') }}</h3>
+    <div class="compare-picker" id="compare-picker">
+      {% for staff in staff_users %}
+      <label class="inline-check">
+        <input type="checkbox" value="{{ staff.id }}" data-compare-user>
+        {{ staff.full_name }}
+      </label>
+      {% endfor %}
+      <button class="button" type="button" data-compare-load>{{ _t('action.load_comparison') }}</button>
+    </div>
+    <canvas id="admin-compare-chart"></canvas>
+  </section>
+
+  <section class="card export-card">
+    <h3>{{ _t('export.title') }}</h3>
+    <p>{{ _t('export.admin_hint') }}</p>
+    <div class="export-actions">
+      <a class="button" href="{{ url_for('export.export_team_report', format='xlsx', period='year', year=year) }}">{{ _t('export.download_team_xlsx') }}</a>
+      <a class="button button-secondary" href="{{ url_for('export.export_team_report', format='pdf', period='year', year=year) }}">{{ _t('export.download_team_pdf') }}</a>
+    </div>
+  </section>
+</section>
+{% endblock %}

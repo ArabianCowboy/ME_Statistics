@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}404 - {{ _t('error.not_found_title') }}{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>404 - {{ _t('error.not_found_title') }}</h2>
+  <p>{{ _t('error.not_found_message') }}</p>
+</section>
+{% endblock %}

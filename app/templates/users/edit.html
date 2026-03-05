@@ -1,0 +1,66 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('users.edit_title') }} | {{ _t('app.title') }}{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>{{ _t('users.edit_title') }} - {{ user.full_name }}</h2>
+  <p>{{ _t('users.edit_hint') }}</p>
+
+  <form method="post" class="form-grid" novalidate>
+    {{ form.hidden_tag() }}
+
+    <div>
+      <label for="{{ form.full_name.id }}">{{ _t('field.full_name') }}</label>
+      {{ form.full_name(class_='input') }}
+      {% for error in form.full_name.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.username.id }}">{{ _t('field.username') }}</label>
+      {{ form.username(class_='input') }}
+      {% for error in form.username.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.email.id }}">{{ _t('field.email') }}</label>
+      {{ form.email(class_='input') }}
+      {% for error in form.email.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.role.id }}">{{ _t('field.role') }}</label>
+      {{ form.role(class_='input') }}
+      {% for error in form.role.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.preferred_lang.id }}">{{ _t('field.preferred_language') }}</label>
+      {{ form.preferred_lang(class_='input') }}
+      {% for error in form.preferred_lang.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div>
+      <label for="{{ form.monthly_target.id }}">{{ _t('field.monthly_target') }}</label>
+      {{ form.monthly_target(class_='input') }}
+      {% for error in form.monthly_target.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <div class="full-width">
+      <label for="{{ form.new_password.id }}">{{ _t('field.new_password') }}</label>
+      {{ form.new_password(class_='input') }}
+      {% for error in form.new_password.errors %}<small class="error">{{ error }}</small>{% endfor %}
+    </div>
+
+    <label class="inline-check">{{ form.is_approved() }} {{ _t('field.approved') }}</label>
+    <label class="inline-check">{{ form.goal_approval_required() }} {{ _t('field.goal_approval_required') }}</label>
+    <label class="inline-check">{{ form.report_approval_required() }} {{ _t('field.report_approval_required') }}</label>
+    <label class="inline-check">{{ form.can_create_goals() }} {{ _t('field.can_create_goals') }}</label>
+
+    <div class="full-width actions-row">
+      {{ form.submit(class_='button', value=_t('action.save_changes')) }}
+      <a class="button button-secondary" href="{{ url_for('users.manage_users') }}">{{ _t('action.back') }}</a>
+    </div>
+  </form>
+</section>
+{% endblock %}

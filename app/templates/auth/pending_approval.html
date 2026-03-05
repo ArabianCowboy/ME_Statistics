@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+
+{% block title %}{{ _t('auth.pending_title') }} | {{ _t('app.title') }}{% endblock %}
+
+{% block content %}
+<section class="card">
+  <h2>{{ _t('auth.pending_title') }}</h2>
+  <p>{{ _t('auth.pending_message') }}</p>
+</section>
+{% endblock %}
