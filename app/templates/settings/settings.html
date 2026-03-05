@@ -1,0 +1,98 @@
+{% extends "base.html" %}
+
+{% block title %}System Settings — ME Statistics{% endblock %}
+
+{% block nav_settings %}sidebar__link--active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-header__title">System Settings</h1>
+        <p class="page-header__subtitle">Configure department settings, targets, and system behavior.</p>
+    </div>
+</div>
+
+<div class="card card--form">
+    <form method="POST" action="{{ url_for('settings.index') }}">
+        {{ form.hidden_tag() }}
+
+        <!-- ═══ Department Settings ═══ -->
+        <div class="form-section">
+            <h3 class="form-section__title">Department</h3>
+
+            <div class="form-group">
+                {{ form.department_name.label(class="form-label") }}
+                {{ form.department_name(class="form-input") }}
+                {% for error in form.department_name.errors %}
+                <span class="form-error">{{ error }}</span>
+                {% endfor %}
+            </div>
+        </div>
+
+        <!-- ═══ Targets & Year ═══ -->
+        <div class="form-section">
+            <h3 class="form-section__title">Targets & Fiscal Year</h3>
+
+            <div class="form-grid form-grid--2">
+                <div class="form-group">
+                    {{ form.default_monthly_target.label(class="form-label") }}
+                    {{ form.default_monthly_target(class="form-input", min=0) }}
+                    <span class="form-hint">Applied to new users. Existing users keep their current target.</span>
+                    {% for error in form.default_monthly_target.errors %}
+                    <span class="form-error">{{ error }}</span>
+                    {% endfor %}
+                </div>
+
+                <div class="form-group">
+                    {{ form.fiscal_year_start.label(class="form-label") }}
+                    {{ form.fiscal_year_start(class="form-input") }}
+                    <span class="form-hint">Month when the fiscal year begins.</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- ═══ Preferences ═══ -->
+        <div class="form-section">
+            <h3 class="form-section__title">Preferences</h3>
+
+            <div class="form-group">
+                {{ form.default_language.label(class="form-label") }}
+                {{ form.default_language(class="form-input") }}
+                <span class="form-hint">Default language for new users.</span>
+            </div>
+        </div>
+
+        <!-- ═══ Toggles ═══ -->
+        <div class="form-section">
+            <h3 class="form-section__title">System Behavior</h3>
+
+            <div class="toggle-item">
+                <div class="toggle-item__info">
+                    <div class="toggle-item__label">Allow Self-Registration</div>
+                    <div class="toggle-item__hint">When enabled, new users can register themselves. They still require
+                        admin approval.</div>
+                </div>
+                <label class="toggle-switch">
+                    {{ form.allow_self_registration(class="toggle-switch__input") }}
+                    <span class="toggle-switch__slider"></span>
+                </label>
+            </div>
+
+            <div class="toggle-item">
+                <div class="toggle-item__info">
+                    <div class="toggle-item__label">Show Leaderboard to Staff</div>
+                    <div class="toggle-item__hint">Anonymized leaderboard visible on staff dashboards.</div>
+                </div>
+                <label class="toggle-switch">
+                    {{ form.leaderboard_visible(class="toggle-switch__input") }}
+                    <span class="toggle-switch__slider"></span>
+                </label>
+            </div>
+        </div>
+
+        <div class="form-actions">
+            {{ form.submit(class="btn btn--primary") }}
+        </div>
+    </form>
+</div>
+{% endblock %}

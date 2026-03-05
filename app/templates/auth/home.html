@@ -1,0 +1,63 @@
+{% extends "base.html" %}
+
+{% block title %}Home — ME Statistics{% endblock %}
+
+{% block nav_dashboard %}sidebar__link--active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <h1 class="page-header__title">Welcome, {{ current_user.full_name }}! 👋</h1>
+    <p class="page-header__subtitle">Your ME Statistics dashboard is coming soon. Here's a quick overview of your
+        account.</p>
+</div>
+
+<div class="cards-grid cards-grid--3">
+    <!-- Account Info Card -->
+    <div class="card">
+        <div class="card__icon card__icon--teal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                <circle cx="9" cy="7" r="4" />
+            </svg>
+        </div>
+        <div class="card__label">Your Account</div>
+        <div class="card__value" style="font-size: 1.2rem;">{{ current_user.full_name }}</div>
+        <p class="card__change text-secondary" style="margin-top: 4px;">Role: {{ current_user.role | capitalize }}</p>
+    </div>
+
+    <!-- Status Card -->
+    <div class="card card--hero">
+        <div class="card__icon" style="background: rgba(255,255,255,0.2); color: white;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                <polyline points="22 4 12 14.01 9 11.01" />
+            </svg>
+        </div>
+        <div class="card__label">Account Status</div>
+        <div class="card__value" style="font-size: 1.2rem;">Active ✅</div>
+        <p class="card__change" style="color: rgba(255,255,255,0.8); margin-top: 4px;">Approved and ready to go</p>
+    </div>
+
+    <!-- Target Card -->
+    <div class="card">
+        <div class="card__icon card__icon--amber">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10" />
+                <circle cx="12" cy="12" r="6" />
+                <circle cx="12" cy="12" r="2" />
+            </svg>
+        </div>
+        <div class="card__label">Monthly Target</div>
+        <div class="card__value">{{ current_user.monthly_target }}</div>
+        <p class="card__change text-secondary" style="margin-top: 4px;">Reports per month</p>
+    </div>
+</div>
+
+<div class="card card--no-hover mt-6" style="text-align: center; padding: 48px;">
+    <h2 style="font-size: 1.2rem; font-weight: 700; margin-bottom: 8px;">🚧 Dashboard Coming Soon</h2>
+    <p class="text-secondary">Full charts, leaderboards, and performance tracking are on the way. Stay tuned!</p>
+</div>
+{% endblock %}

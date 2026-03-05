@@ -1,0 +1,150 @@
+{% extends "base.html" %}
+
+{% block title %}{{ 'Edit User' if editing else 'New User' }} — ME Statistics{% endblock %}
+
+{% block nav_users %}sidebar__link--active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-header__title">{{ 'Edit User — ' + user.username if editing else 'Create New User' }}</h1>
+        <p class="page-header__subtitle">
+            {{ 'Update profile details and workflow settings.' if editing else 'Create a pre-approved user account.' }}
+        </p>
+    </div>
+    <a href="{{ url_for('users.manage') }}" class="btn btn--ghost">
+        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6" />
+        </svg>
+        Back
+    </a>
+</div>
+
+<div class="card card--form">
+    <form method="POST">
+        {{ form.hidden_tag() }}
+
+        {% if not editing %}
+        <!-- Username — only on create -->
+        <div class="form-group">
+            <label class="form-label" for="username">Username</label>
+            <input type="text" class="form-input {% if form.username.errors %}form-input--error{% endif %}"
+                id="username" name="username" value="{{ form.username.data or '' }}" placeholder="e.g. johndoe"
+                autocomplete="off">
+            {% for error in form.username.errors %}
+            <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+
+        <div class="form-group">
+            <label class="form-label" for="password">Password</label>
+            <input type="password" class="form-input {% if form.password.errors %}form-input--error{% endif %}"
+                id="password" name="password" placeholder="Min 6 characters" autocomplete="new-password">
+            {% for error in form.password.errors %}
+            <p class="form-error">{{ error }}</p>
+            {% endfor %}
+        </div>
+        {% endif %}
+
+        <div class="form-grid form-grid--2">
+            <div class="form-group">
+                <label class="form-label" for="full_name">Full Name</label>
+                <input type="text" class="form-input {% if form.full_name.errors %}form-input--error{% endif %}"
+                    id="full_name" name="full_name" value="{{ form.full_name.data or '' }}" placeholder="e.g. John Doe">
+                {% for error in form.full_name.errors %}
+                <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">Email</label>
+                <input type="email" class="form-input {% if form.email.errors %}form-input--error{% endif %}" id="email"
+                    name="email" value="{{ form.email.data or '' }}" placeholder="e.g. john@example.com">
+                {% for error in form.email.errors %}
+                <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+        </div>
+
+        <div class="form-grid form-grid--3">
+            <div class="form-group">
+                <label class="form-label" for="role">Role</label>
+                <select class="form-input" id="role" name="role">
+                    {% for value, label in form.role.choices %}
+                    <option value="{{ value }}" {% if form.role.data==value %}selected{% endif %}>{{ label }}</option>
+                    {% endfor %}
+                </select>
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="monthly_target">Monthly Target</label>
+                <input type="number" class="form-input {% if form.monthly_target.errors %}form-input--error{% endif %}"
+                    id="monthly_target" name="monthly_target" value="{{ form.monthly_target.data or 0 }}" min="0">
+                {% for error in form.monthly_target.errors %}
+                <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="preferred_lang">Language</label>
+                <select class="form-input" id="preferred_lang" name="preferred_lang">
+                    {% for value, label in form.preferred_lang.choices %}
+                    <option value="{{ value }}" {% if form.preferred_lang.data==value %}selected{% endif %}>{{ label }}
+                    </option>
+                    {% endfor %}
+                </select>
+            </div>
+        </div>
+
+        {% if editing %}
+        <!-- Workflow Toggles — only show on edit -->
+        <div class="form-section">
+            <h3 class="form-section__title">Workflow Settings</h3>
+            <p class="form-section__desc text-secondary">Control what this user can do and whether their submissions
+                need approval.</p>
+
+            <div class="toggle-grid">
+                <label class="toggle-item">
+                    <input type="checkbox" name="goal_approval_required" {% if form.goal_approval_required.data
+                        %}checked{% endif %}>
+                    <div class="toggle-item__content">
+                        <strong>Goal Approval Required</strong>
+                        <span class="text-secondary">Goals submitted by this user will require admin approval.</span>
+                    </div>
+                </label>
+
+                <label class="toggle-item">
+                    <input type="checkbox" name="report_approval_required" {% if form.report_approval_required.data
+                        %}checked{% endif %}>
+                    <div class="toggle-item__content">
+                        <strong>Report Approval Required</strong>
+                        <span class="text-secondary">Monthly reports will need admin review before counting.</span>
+                    </div>
+                </label>
+
+                <label class="toggle-item">
+                    <input type="checkbox" name="can_create_goals" {% if form.can_create_goals.data %}checked{% endif
+                        %}>
+                    <div class="toggle-item__content">
+                        <strong>Can Create Goals</strong>
+                        <span class="text-secondary">Allow this user to create their own goals.</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+        {% endif %}
+
+        <div class="form-actions">
+            <button type="submit" class="btn btn--primary btn--lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <polyline points="20 6 9 17 4 12" />
+                </svg>
+                {{ 'Save Changes' if editing else 'Create User' }}
+            </button>
+            <a href="{{ url_for('users.manage') }}" class="btn btn--ghost">Cancel</a>
+        </div>
+    </form>
+</div>
+{% endblock %}

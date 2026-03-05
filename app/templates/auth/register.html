@@ -1,0 +1,93 @@
+{% extends "base.html" %}
+
+{% block title %}Register — ME Statistics{% endblock %}
+
+{% block auth_content %}
+<div class="auth-page">
+    <div class="auth-card">
+        <!-- Header -->
+        <div class="auth-card__header">
+            <div class="auth-card__logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="28" height="28" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <line x1="19" y1="8" x2="19" y2="14" />
+                    <line x1="22" y1="11" x2="16" y2="11" />
+                </svg>
+            </div>
+            <h1 class="auth-card__title">Create Account</h1>
+            <p class="auth-card__subtitle">Join the ME Statistics team</p>
+        </div>
+
+        <!-- Register Form -->
+        <form method="POST" action="{{ url_for('auth.register') }}">
+            {{ form.hidden_tag() }}
+
+            <div class="form-group">
+                <label class="form-label" for="username">Username</label>
+                <input type="text" class="form-input {% if form.username.errors %}form-input--error{% endif %}"
+                    id="username" name="username" value="{{ form.username.data or '' }}" placeholder="Choose a username"
+                    autofocus>
+                {% for error in form.username.errors %}
+                <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="email">Email Address</label>
+                <input type="email" class="form-input {% if form.email.errors %}form-input--error{% endif %}" id="email"
+                    name="email" value="{{ form.email.data or '' }}" placeholder="your.email@example.com">
+                {% for error in form.email.errors %}
+                <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="full_name">Full Name</label>
+                <input type="text" class="form-input {% if form.full_name.errors %}form-input--error{% endif %}"
+                    id="full_name" name="full_name" value="{{ form.full_name.data or '' }}"
+                    placeholder="Your full name">
+                {% for error in form.full_name.errors %}
+                <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="password">Password</label>
+                <input type="password" class="form-input {% if form.password.errors %}form-input--error{% endif %}"
+                    id="password" name="password" placeholder="At least 8 characters">
+                {% for error in form.password.errors %}
+                <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <div class="form-group">
+                <label class="form-label" for="confirm_password">Confirm Password</label>
+                <input type="password"
+                    class="form-input {% if form.confirm_password.errors %}form-input--error{% endif %}"
+                    id="confirm_password" name="confirm_password" placeholder="Re-enter your password">
+                {% for error in form.confirm_password.errors %}
+                <p class="form-error">{{ error }}</p>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn btn--primary btn--full btn--lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <line x1="19" y1="8" x2="19" y2="14" />
+                    <line x1="22" y1="11" x2="16" y2="11" />
+                </svg>
+                Create Account
+            </button>
+        </form>
+
+        <!-- Footer -->
+        <div class="auth-card__footer">
+            Already have an account? <a href="{{ url_for('auth.login') }}">Log in</a>
+        </div>
+    </div>
+</div>
+{% endblock %}

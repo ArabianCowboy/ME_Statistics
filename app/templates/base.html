@@ -1,0 +1,278 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="description" content="ME Statistics — Medication Error Performance Tracking">
+    <title>{% block title %}ME Statistics{% endblock %}</title>
+
+    <!-- Lucide Icons (CDN) -->
+    <script src="https://unpkg.com/lucide@latest/dist/umd/lucide.js"></script>
+
+    <!-- Stylesheet -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+
+    {% block extra_head %}{% endblock %}
+</head>
+
+<body>
+
+    {% block body_layout %}
+    {% if current_user.is_authenticated and current_user.is_approved %}
+    <!-- ═══ SIDEBAR ═══════════════════════════════════════════ -->
+    <aside class="sidebar" id="sidebar">
+        <!-- Sidebar Header -->
+        <div class="sidebar__header">
+            <div class="sidebar__logo">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M3 3v18h18" />
+                    <path d="m19 9-5 5-4-4-3 3" />
+                </svg>
+            </div>
+            <div>
+                <div class="sidebar__title">ME Statistics</div>
+                <div class="sidebar__subtitle">Performance Tracker</div>
+            </div>
+        </div>
+
+        <!-- Sidebar Navigation -->
+        <nav class="sidebar__nav">
+            <div class="sidebar__section-label">Main</div>
+
+            <a href="{{ url_for('dashboard.staff') }}" class="sidebar__link {% block nav_dashboard %}{% endblock %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect width="7" height="9" x="3" y="3" rx="1" />
+                    <rect width="7" height="5" x="14" y="3" rx="1" />
+                    <rect width="7" height="9" x="14" y="12" rx="1" />
+                    <rect width="7" height="5" x="3" y="16" rx="1" />
+                </svg>
+                <span>Dashboard</span>
+            </a>
+
+            <a href="{{ url_for('logs.reports') }}" class="sidebar__link {% block nav_reports %}{% endblock %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z" />
+                    <path d="M14 2v4a2 2 0 0 0 2 2h4" />
+                    <path d="M10 18v-4" />
+                    <path d="M14 18v-6" />
+                </svg>
+                <span>Monthly Reports</span>
+            </a>
+
+            <a href="{{ url_for('logs.goals') }}" class="sidebar__link {% block nav_goals %}{% endblock %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10" />
+                    <circle cx="12" cy="12" r="6" />
+                    <circle cx="12" cy="12" r="2" />
+                </svg>
+                <span>Goals</span>
+            </a>
+
+            <a href="{{ url_for('logs.tasks') }}" class="sidebar__link {% block nav_tasks %}{% endblock %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M22 11.08V12a10 10 0 1 1-5.93-9.14" />
+                    <polyline points="22 4 12 14.01 9 11.01" />
+                </svg>
+                <span>Tasks</span>
+            </a>
+
+            {% if current_user.is_admin %}
+            <div class="sidebar__section-label">Admin</div>
+
+            <a href="{{ url_for('users.manage') }}" class="sidebar__link {% block nav_users %}{% endblock %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2" />
+                    <circle cx="9" cy="7" r="4" />
+                    <path d="M22 21v-2a4 4 0 0 0-3-3.87" />
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75" />
+                </svg>
+                <span>Manage Users</span>
+            </a>
+
+            <a href="{{ url_for('settings.index') }}" class="sidebar__link {% block nav_settings %}{% endblock %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path
+                        d="M12.22 2h-.44a2 2 0 0 0-2 2v.18a2 2 0 0 1-1 1.73l-.43.25a2 2 0 0 1-2 0l-.15-.08a2 2 0 0 0-2.73.73l-.22.38a2 2 0 0 0 .73 2.73l.15.1a2 2 0 0 1 1 1.72v.51a2 2 0 0 1-1 1.74l-.15.09a2 2 0 0 0-.73 2.73l.22.38a2 2 0 0 0 2.73.73l.15-.08a2 2 0 0 1 2 0l.43.25a2 2 0 0 1 1 1.73V20a2 2 0 0 0 2 2h.44a2 2 0 0 0 2-2v-.18a2 2 0 0 1 1-1.73l.43-.25a2 2 0 0 1 2 0l.15.08a2 2 0 0 0 2.73-.73l.22-.39a2 2 0 0 0-.73-2.73l-.15-.08a2 2 0 0 1-1-1.74v-.5a2 2 0 0 1 1-1.74l.15-.09a2 2 0 0 0 .73-2.73l-.22-.38a2 2 0 0 0-2.73-.73l-.15.08a2 2 0 0 1-2 0l-.43-.25a2 2 0 0 1-1-1.73V4a2 2 0 0 0-2-2z" />
+                    <circle cx="12" cy="12" r="3" />
+                </svg>
+                <span>Settings</span>
+            </a>
+            {% endif %}
+        </nav>
+
+        <!-- Sidebar Footer -->
+        <div class="sidebar__footer">
+            <div class="sidebar__user">
+                <div class="sidebar__avatar">
+                    {{ current_user.full_name[0] | upper }}
+                </div>
+                <div>
+                    <div class="sidebar__user-name">{{ current_user.full_name }}</div>
+                    <div class="sidebar__user-role">{{ current_user.role | capitalize }}</div>
+                </div>
+            </div>
+        </div>
+    </aside>
+
+    <!-- ═══ TOPBAR ════════════════════════════════════════════ -->
+    <header class="topbar">
+        <div class="topbar__welcome">
+            Welcome back, <span>{{ current_user.full_name }}</span> 👋
+        </div>
+        <div class="topbar__actions">
+            <!-- Language Toggle -->
+            <div class="topbar__lang-toggle">
+                <button class="topbar__lang-btn topbar__lang-btn--active" id="lang-en">EN</button>
+                <button class="topbar__lang-btn" id="lang-ar">AR</button>
+            </div>
+
+            <!-- Bell Badge -->
+            <div class="bell-wrapper" id="bell-wrapper">
+                <button class="topbar__bell" id="bell-btn" title="Notifications">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M6 8a6 6 0 0 1 12 0c0 7 3 9 3 9H3s3-2 3-9" />
+                        <path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" />
+                    </svg>
+                    <span class="topbar__bell-count" id="bell-count" style="display:none;">0</span>
+                </button>
+                <div class="bell-dropdown" id="bell-dropdown">
+                    <div class="bell-dropdown__header">
+                        <span class="bell-dropdown__title">Notifications</span>
+                        <button class="bell-dropdown__mark-all" id="mark-all-read">Mark all read</button>
+                    </div>
+                    <div class="bell-dropdown__list" id="bell-list">
+                        <div class="bell-dropdown__empty">No notifications</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Role Badge -->
+            <span class="topbar__role-badge">{{ current_user.role }}</span>
+
+            <!-- Logout -->
+            <form action="{{ url_for('auth.logout') }}" method="POST" style="margin:0;">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="topbar__logout-btn">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                        <polyline points="16 17 21 12 16 7" />
+                        <line x1="21" y1="12" x2="9" y2="12" />
+                    </svg>
+                    Logout
+                </button>
+            </form>
+        </div>
+    </header>
+
+    <!-- ═══ MAIN CONTENT ══════════════════════════════════════ -->
+    <main class="main-content">
+        <!-- Flash → Toasts -->
+        {% with messages = get_flashed_messages(with_categories=true) %}
+        {% if messages %}
+        <script>
+            document.addEventListener('DOMContentLoaded', function () {
+                {% for category, message in messages %}
+                showToast({{ message | tojson }}, '{{ category }}');
+            {% endfor %}
+        });
+        </script>
+        {% endif %}
+        {% endwith %}
+
+        {% block content %}{% endblock %}
+    </main>
+
+    {% else %}
+    <!-- ═══ NO SIDEBAR LAYOUT (auth pages) ════════════════════ -->
+    {% with messages = get_flashed_messages(with_categories=true) %}
+    {% if messages %}
+    <div style="position:fixed;top:20px;left:50%;transform:translateX(-50%);z-index:1000;width:90%;max-width:440px;">
+        {% for category, message in messages %}
+        <div class="alert alert--{{ category }}">
+            {{ message }}
+        </div>
+        {% endfor %}
+    </div>
+    {% endif %}
+    {% endwith %}
+
+    {% block auth_content %}{% endblock %}
+    {% endif %}
+    {% endblock %}
+
+    <!-- Toast System -->
+    <script src="{{ url_for('static', filename='js/toast.js') }}"></script>
+
+    {% if current_user.is_authenticated and current_user.is_approved %}
+    <!-- Bell Badge JS -->
+    <script>
+        (function () {
+            const bellBtn = document.getElementById('bell-btn');
+            const dropdown = document.getElementById('bell-dropdown');
+            const countEl = document.getElementById('bell-count');
+            const listEl = document.getElementById('bell-list');
+            const markAllBtn = document.getElementById('mark-all-read');
+
+            function loadNotifications() {
+                fetch('/api/notifications')
+                    .then(r => r.json())
+                    .then(data => {
+                        if (data.unread_count > 0) {
+                            countEl.textContent = data.unread_count;
+                            countEl.style.display = 'flex';
+                        } else {
+                            countEl.style.display = 'none';
+                        }
+                        if (data.notifications.length === 0) {
+                            listEl.innerHTML = '<div class="bell-dropdown__empty">No notifications</div>';
+                            return;
+                        }
+                        listEl.innerHTML = data.notifications.map(n => {
+                            const cls = n.is_read ? 'bell-item bell-item--read' : 'bell-item';
+                            const link = n.link ? ' onclick="window.location=\'' + n.link + '\'"' : '';
+                            return '<div class="' + cls + '"' + link + ' data-id="' + n.id + '">' +
+                                '<div class="bell-item__message">' + n.message + '</div>' +
+                                '<div class="bell-item__time">' + n.created_at + '</div>' +
+                                '</div>';
+                        }).join('');
+                    });
+            }
+
+            bellBtn.addEventListener('click', function (e) {
+                e.stopPropagation();
+                dropdown.classList.toggle('bell-dropdown--open');
+                if (dropdown.classList.contains('bell-dropdown--open')) loadNotifications();
+            });
+
+            document.addEventListener('click', function (e) {
+                if (!document.getElementById('bell-wrapper').contains(e.target)) {
+                    dropdown.classList.remove('bell-dropdown--open');
+                }
+            });
+
+            markAllBtn.addEventListener('click', function () {
+                fetch('/api/notifications/mark-all-read', { method: 'POST', headers: { 'X-CSRFToken': document.querySelector('meta[name=csrf-token]')?.content || '' } })
+                    .then(() => loadNotifications());
+            });
+
+            // Initial load + poll every 30s
+            loadNotifications();
+            setInterval(loadNotifications, 30000);
+        })();
+    </script>
+    {% endif %}
+
+    {% block extra_scripts %}{% endblock %}
+</body>
+
+</html>

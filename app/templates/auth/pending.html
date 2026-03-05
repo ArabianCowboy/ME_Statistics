@@ -1,0 +1,28 @@
+{% extends "base.html" %}
+
+{% block title %}Pending Approval — ME Statistics{% endblock %}
+
+{% block auth_content %}
+<div class="pending-page">
+    <div class="pending-card">
+        <div class="pending-card__icon">⏳</div>
+        <h1 class="pending-card__title">Approval Pending</h1>
+        <p class="pending-card__text">
+            Your account has been created successfully. An administrator will review
+            and approve your account shortly. Please check back later.
+        </p>
+        <form action="{{ url_for('auth.logout') }}" method="POST">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <button type="submit" class="btn btn--secondary">
+                <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" />
+                    <polyline points="16 17 21 12 16 7" />
+                    <line x1="21" y1="12" x2="9" y2="12" />
+                </svg>
+                Log Out
+            </button>
+        </form>
+    </div>
+</div>
+{% endblock %}
