@@ -192,6 +192,24 @@
         // Users Page
         'users.subtitle': { en: 'Create, edit, and manage user accounts.', ar: 'إنشاء وتعديل وإدارة حسابات المستخدمين.' },
         'users.pending': { en: 'pending approval', ar: 'بانتظار الموافقة' },
+
+        // Audit Log
+        'nav.audit_log': { en: 'Audit Log', ar: 'سجل المراجعة' },
+        'page.audit_log': { en: 'Audit Log', ar: 'سجل المراجعة' },
+        'audit.subtitle': { en: 'Browse system activity and changes.', ar: 'تصفح نشاط النظام والتغييرات.' },
+        'audit.entity_type': { en: 'Entity Type', ar: 'نوع الكيان' },
+        'audit.action': { en: 'Action', ar: 'الإجراء' },
+        'audit.all': { en: 'All', ar: 'الكل' },
+        'audit.clear_filters': { en: 'Clear Filters', ar: 'مسح الفلاتر' },
+        'audit.th_time': { en: 'Timestamp', ar: 'الوقت' },
+        'audit.th_actor': { en: 'Actor', ar: 'المنفذ' },
+        'audit.th_action': { en: 'Action', ar: 'الإجراء' },
+        'audit.th_entity': { en: 'Entity', ar: 'الكيان' },
+        'audit.th_target': { en: 'Target', ar: 'الهدف' },
+        'audit.th_details': { en: 'Details', ar: 'التفاصيل' },
+        'audit.empty': { en: 'No Audit Entries', ar: 'لا توجد سجلات' },
+        'audit.empty_sub': { en: 'Activity will appear here as users interact with the system.', ar: 'سيظهر النشاط هنا عندما يتفاعل المستخدمون مع النظام.' },
+        'audit.detail_title': { en: 'Change Details', ar: 'تفاصيل التغيير' },
     };
 
     // ── State ────────────────────────────────────────────────

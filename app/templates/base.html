@@ -108,6 +108,17 @@
                 </svg>
                 <span data-i18n="nav.settings">Settings</span>
             </a>
+
+            <a href="{{ url_for('settings.audit_log') }}" class="sidebar__link {% block nav_audit %}{% endblock %}">
+                <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                    stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M16 4h2a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h2" />
+                    <rect x="8" y="2" width="8" height="4" rx="1" ry="1" />
+                    <path d="M9 12h6" />
+                    <path d="M9 16h6" />
+                </svg>
+                <span data-i18n="nav.audit_log">Audit Log</span>
+            </a>
             {% endif %}
         </nav>
 

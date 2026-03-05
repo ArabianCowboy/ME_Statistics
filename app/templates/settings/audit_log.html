@@ -1,0 +1,198 @@
+{% extends "base.html" %}
+
+{% block nav_audit %}sidebar__link--active{% endblock %}
+{% block page_title %}Audit Log — ME Statistics{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-header__title" data-i18n="page.audit_log">Audit Log</h1>
+        <p class="page-header__subtitle" data-i18n="audit.subtitle">Browse system activity and changes.</p>
+    </div>
+</div>
+
+<!-- ═══ Filters ═══ -->
+<div class="audit-filters">
+    <form method="get" action="{{ url_for('settings.audit_log') }}" class="audit-filters__form">
+        <div class="audit-filters__group">
+            <label class="form-label form-label--sm" data-i18n="audit.entity_type">Entity Type</label>
+            <select name="entity" class="form-control form-control--sm" onchange="this.form.submit()">
+                <option value="" data-i18n="audit.all">All</option>
+                {% for et in entity_types %}
+                <option value="{{ et }}" {{ 'selected' if entity_filter==et }}>{{ et | replace('_', ' ') | title }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        <div class="audit-filters__group">
+            <label class="form-label form-label--sm" data-i18n="audit.action">Action</label>
+            <select name="action" class="form-control form-control--sm" onchange="this.form.submit()">
+                <option value="" data-i18n="audit.all">All</option>
+                {% for a in actions %}
+                <option value="{{ a }}" {{ 'selected' if action_filter==a }}>{{ a | replace('_', ' ') | title }}
+                </option>
+                {% endfor %}
+            </select>
+        </div>
+        {% if entity_filter or action_filter %}
+        <a href="{{ url_for('settings.audit_log') }}" class="btn btn--ghost btn--sm"
+            data-i18n="audit.clear_filters">Clear Filters</a>
+        {% endif %}
+    </form>
+</div>
+
+<!-- ═══ Table ═══ -->
+{% if logs %}
+<div class="data-table-wrapper">
+    <table class="data-table" id="audit-table">
+        <thead>
+            <tr>
+                <th data-i18n="audit.th_time">Timestamp</th>
+                <th data-i18n="audit.th_actor">Actor</th>
+                <th data-i18n="audit.th_action">Action</th>
+                <th data-i18n="audit.th_entity">Entity</th>
+                <th data-i18n="audit.th_target">Target</th>
+                <th data-i18n="audit.th_details">Details</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for log in logs %}
+            <tr>
+                <td class="text-sm text-secondary">{{ log.created_at.strftime('%Y-%m-%d %H:%M') }}</td>
+                <td class="fw-600">{{ log.actor.full_name if log.actor else '—' }}</td>
+                <td>
+                    <span class="action-badge action-badge--{{ log.action }}">{{ log.action | replace('_', ' ') | title
+                        }}</span>
+                </td>
+                <td>
+                    <span class="text-sm">{{ log.entity_type | replace('_', ' ') | title }}</span>
+                    <span class="text-secondary text-sm">#{{ log.entity_id }}</span>
+                </td>
+                <td class="text-sm">{{ log.target.full_name if log.target else '—' }}</td>
+                <td>
+                    {% if log.before_json or log.after_json %}
+                    <button class="btn btn--ghost btn--sm audit-detail-btn"
+                        data-before="{{ log.before_json | default('{}', true) | e }}"
+                        data-after="{{ log.after_json | default('{}', true) | e }}"
+                        data-action="{{ log.action | replace('_', ' ') | title }}"
+                        data-entity="{{ log.entity_type | replace('_', ' ') | title }} #{{ log.entity_id }}"
+                        data-actor="{{ log.actor.full_name if log.actor else '—' }}"
+                        data-time="{{ log.created_at.strftime('%Y-%m-%d %H:%M:%S') }}">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M2 12s3-7 10-7 10 7 10 7-3 7-10 7-10-7-10-7Z" />
+                            <circle cx="12" cy="12" r="3" />
+                        </svg>
+                    </button>
+                    {% else %}
+                    <span class="text-secondary text-sm">—</span>
+                    {% endif %}
+                </td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+
+<!-- ═══ Pagination ═══ -->
+{% if pagination.pages > 1 %}
+<div class="pagination">
+    {% if pagination.has_prev %}
+    <a href="{{ url_for('settings.audit_log', page=pagination.prev_num, entity=entity_filter, action=action_filter) }}"
+        class="pagination__link">← Previous</a>
+    {% endif %}
+
+    <span class="pagination__info">
+        Page {{ pagination.page }} of {{ pagination.pages }}
+        <span class="text-secondary">({{ pagination.total }} entries)</span>
+    </span>
+
+    {% if pagination.has_next %}
+    <a href="{{ url_for('settings.audit_log', page=pagination.next_num, entity=entity_filter, action=action_filter) }}"
+        class="pagination__link">Next →</a>
+    {% endif %}
+</div>
+{% endif %}
+
+{% else %}
+<div class="empty-state">
+    <div class="empty-state__icon">📋</div>
+    <h3 data-i18n="audit.empty">No Audit Entries</h3>
+    <p class="text-secondary" data-i18n="audit.empty_sub">Activity will appear here as users interact with the system.
+    </p>
+</div>
+{% endif %}
+
+<!-- ═══ Detail Modal ═══ -->
+<div class="audit-modal" id="audit-modal">
+    <div class="audit-modal__overlay" id="audit-modal-overlay"></div>
+    <div class="audit-modal__content">
+        <div class="audit-modal__header">
+            <h3 data-i18n="audit.detail_title">Change Details</h3>
+            <button class="audit-modal__close" id="audit-modal-close">&times;</button>
+        </div>
+        <div class="audit-modal__meta">
+            <div><strong>Action:</strong> <span id="modal-action"></span></div>
+            <div><strong>Entity:</strong> <span id="modal-entity"></span></div>
+            <div><strong>Actor:</strong> <span id="modal-actor"></span></div>
+            <div><strong>Time:</strong> <span id="modal-time"></span></div>
+        </div>
+        <div class="audit-modal__diff">
+            <div class="audit-modal__diff-col audit-modal__diff-col--before">
+                <h4>Before</h4>
+                <pre id="modal-before"></pre>
+            </div>
+            <div class="audit-modal__diff-col audit-modal__diff-col--after">
+                <h4>After</h4>
+                <pre id="modal-after"></pre>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('audit-modal');
+        const overlay = document.getElementById('audit-modal-overlay');
+        const closeBtn = document.getElementById('audit-modal-close');
+
+        function openModal(btn) {
+            document.getElementById('modal-action').textContent = btn.dataset.action;
+            document.getElementById('modal-entity').textContent = btn.dataset.entity;
+            document.getElementById('modal-actor').textContent = btn.dataset.actor;
+            document.getElementById('modal-time').textContent = btn.dataset.time;
+
+            try {
+                const before = JSON.parse(btn.dataset.before || '{}');
+                document.getElementById('modal-before').textContent = JSON.stringify(before, null, 2);
+            } catch (e) {
+                document.getElementById('modal-before').textContent = btn.dataset.before || '—';
+            }
+
+            try {
+                const after = JSON.parse(btn.dataset.after || '{}');
+                document.getElementById('modal-after').textContent = JSON.stringify(after, null, 2);
+            } catch (e) {
+                document.getElementById('modal-after').textContent = btn.dataset.after || '—';
+            }
+
+            modal.classList.add('audit-modal--open');
+        }
+
+        function closeModal() {
+            modal.classList.remove('audit-modal--open');
+        }
+
+        document.querySelectorAll('.audit-detail-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () { openModal(this); });
+        });
+
+        closeBtn.addEventListener('click', closeModal);
+        overlay.addEventListener('click', closeModal);
+
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeModal();
+        });
+    });
+</script>
+{% endblock %}
