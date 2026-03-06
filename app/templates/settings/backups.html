@@ -1,0 +1,296 @@
+{% extends "base.html" %}
+
+{% block nav_backups %}sidebar__link--active{% endblock %}
+{% block page_title %}Backup & Restore — ME Statistics{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-header__title" data-i18n="page.backups">Backup & Restore</h1>
+        <p class="page-header__subtitle" data-i18n="backup.subtitle">Manage database backups, schedule auto-backups, and
+            restore previous versions.</p>
+    </div>
+</div>
+
+<!-- ═══ Status + Config Cards ═══ -->
+<div class="backup-grid">
+    <!-- Status Card -->
+    <div class="backup-card">
+        <div class="backup-card__header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                <polyline points="7 10 12 15 17 10" />
+                <line x1="12" y1="15" x2="12" y2="3" />
+            </svg>
+            <h3 data-i18n="backup.status_title">Backup Status</h3>
+        </div>
+        <div class="backup-card__body">
+            <div class="backup-status">
+                <div class="backup-status__indicator backup-status__indicator--{{ health }}"></div>
+                <span class="backup-status__label">
+                    {% if health == 'healthy' %}
+                    <span data-i18n="backup.healthy">Healthy</span>
+                    {% elif health == 'warning' %}
+                    <span data-i18n="backup.warning">Due Soon</span>
+                    {% elif health == 'overdue' %}
+                    <span data-i18n="backup.overdue">Overdue</span>
+                    {% else %}
+                    <span data-i18n="backup.disabled">Auto-backup Disabled</span>
+                    {% endif %}
+                </span>
+            </div>
+            <div class="backup-stats">
+                <div class="backup-stat">
+                    <span class="backup-stat__value">{{ backup_count }}</span>
+                    <span class="backup-stat__label" data-i18n="backup.stored">backups stored</span>
+                </div>
+                <div class="backup-stat">
+                    <span class="backup-stat__value">{{ total_size }}</span>
+                    <span class="backup-stat__label" data-i18n="backup.total_size">total size</span>
+                </div>
+            </div>
+            {% if backups %}
+            <p class="backup-last-info">
+                <span data-i18n="backup.last_backup">Last backup:</span>
+                <strong>{{ backups[0].created.strftime('%Y-%m-%d %H:%M') }}</strong>
+            </p>
+            {% endif %}
+        </div>
+        <div class="backup-card__footer">
+            <form method="post" action="{{ url_for('settings.backup_now') }}">
+                <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                <button type="submit" class="btn btn--primary btn--backup-now">
+                    <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4" />
+                        <polyline points="7 10 12 15 17 10" />
+                        <line x1="12" y1="15" x2="12" y2="3" />
+                    </svg>
+                    <span data-i18n="backup.backup_now">Backup Now</span>
+                </button>
+            </form>
+        </div>
+    </div>
+
+    <!-- Config Card -->
+    <div class="backup-card">
+        <div class="backup-card__header">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="3" />
+                <path
+                    d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09c0 .66.38 1.26 1 1.51a1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9c.13.62.73 1 1.51 1H21a2 2 0 0 1 0 4h-.09c-.66 0-1.26.38-1.51 1z" />
+            </svg>
+            <h3 data-i18n="backup.config_title">Auto-Backup Configuration</h3>
+        </div>
+        <form method="post" action="{{ url_for('settings.backup_config') }}">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <div class="backup-card__body">
+                <div class="backup-config-row">
+                    <label class="backup-toggle-label" data-i18n="backup.auto_enable">Enable Auto-Backup</label>
+                    <label class="toggle">
+                        <input type="checkbox" name="auto_enabled" value="true" {{ 'checked' if auto_enabled }}>
+                        <span class="toggle__slider"></span>
+                    </label>
+                </div>
+                <div class="backup-config-row">
+                    <label class="form-label form-label--sm" data-i18n="backup.interval">Backup every</label>
+                    <select name="interval_days" class="form-control form-control--sm">
+                        <option value="1" {{ 'selected' if interval_days==1 }}>1 day</option>
+                        <option value="3" {{ 'selected' if interval_days==3 }}>3 days</option>
+                        <option value="7" {{ 'selected' if interval_days==7 }}>7 days</option>
+                        <option value="14" {{ 'selected' if interval_days==14 }}>14 days</option>
+                        <option value="30" {{ 'selected' if interval_days==30 }}>30 days</option>
+                    </select>
+                </div>
+                <div class="backup-config-row">
+                    <label class="form-label form-label--sm" data-i18n="backup.retention">Keep latest</label>
+                    <select name="retention_count" class="form-control form-control--sm">
+                        <option value="5" {{ 'selected' if retention_count==5 }}>5 backups</option>
+                        <option value="10" {{ 'selected' if retention_count==10 }}>10 backups</option>
+                        <option value="20" {{ 'selected' if retention_count==20 }}>20 backups</option>
+                        <option value="50" {{ 'selected' if retention_count==50 }}>50 backups</option>
+                    </select>
+                </div>
+            </div>
+            <div class="backup-card__footer">
+                <button type="submit" class="btn btn--primary">
+                    <span data-i18n="backup.save_config">Save Configuration</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- ═══ Backup List ═══ -->
+<div class="backup-card backup-card--full">
+    <div class="backup-card__header">
+        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M22 19a2 2 0 0 1-2 2H4a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h5l2 3h9a2 2 0 0 1 2 2z" />
+        </svg>
+        <h3 data-i18n="backup.list_title">Available Backups</h3>
+    </div>
+
+    {% if backups %}
+    <div class="data-table-wrapper">
+        <table class="data-table" id="backup-table">
+            <thead>
+                <tr>
+                    <th data-i18n="backup.th_date">Date & Time</th>
+                    <th data-i18n="backup.th_type">Type</th>
+                    <th data-i18n="backup.th_size">Size</th>
+                    <th data-i18n="backup.th_filename">Filename</th>
+                    <th data-i18n="backup.th_actions">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for b in backups %}
+                <tr>
+                    <td class="fw-600">{{ b.created.strftime('%Y-%m-%d %H:%M:%S') }}</td>
+                    <td>
+                        {% if 'manual' in b.filename %}
+                        <span class="backup-type-badge backup-type-badge--manual">Manual</span>
+                        {% elif 'auto' in b.filename %}
+                        <span class="backup-type-badge backup-type-badge--auto">Auto</span>
+                        {% elif 'prerestore' in b.filename %}
+                        <span class="backup-type-badge backup-type-badge--safety">Safety</span>
+                        {% else %}
+                        <span class="backup-type-badge">Backup</span>
+                        {% endif %}
+                    </td>
+                    <td class="text-sm">{{ b.size_human }}</td>
+                    <td class="text-sm text-secondary">{{ b.filename }}</td>
+                    <td class="backup-actions">
+                        <button class="btn btn--warning btn--sm backup-restore-btn" data-filename="{{ b.filename }}"
+                            data-date="{{ b.created.strftime('%Y-%m-%d %H:%M') }}" data-size="{{ b.size_human }}">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                stroke-linejoin="round">
+                                <polyline points="1 4 1 10 7 10" />
+                                <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                            </svg>
+                            <span data-i18n="backup.restore">Restore</span>
+                        </button>
+                        <form method="post" action="{{ url_for('settings.backup_delete', filename=b.filename) }}"
+                            style="display:inline" onsubmit="return confirm('Delete this backup?')">
+                            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+                            <button type="submit" class="btn btn--ghost btn--sm btn--danger-ghost">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24"
+                                    fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                                    stroke-linejoin="round">
+                                    <polyline points="3 6 5 6 21 6" />
+                                    <path
+                                        d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6m3 0V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2" />
+                                </svg>
+                            </button>
+                        </form>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state" style="padding: 40px 0;">
+        <div class="empty-state__icon">💾</div>
+        <h3 data-i18n="backup.empty">No Backups Yet</h3>
+        <p class="text-secondary" data-i18n="backup.empty_sub">Click "Backup Now" to create your first database backup.
+        </p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ═══ Restore Confirmation Modal ═══ -->
+<div class="audit-modal" id="restore-modal">
+    <div class="audit-modal__overlay" id="restore-overlay"></div>
+    <div class="audit-modal__content">
+        <div class="audit-modal__header">
+            <h3 style="color: #dc2626;" data-i18n="backup.restore_title">⚠️ Confirm Restore</h3>
+            <button class="audit-modal__close" id="restore-close">&times;</button>
+        </div>
+        <div class="restore-warning">
+            <p><strong data-i18n="backup.restore_warning">This will replace your current database with the selected
+                    backup.</strong></p>
+            <p class="text-secondary" data-i18n="backup.restore_safety">A safety backup of the current state will be
+                created automatically before restoring.</p>
+            <div class="restore-info">
+                <div><strong>Backup:</strong> <span id="restore-date"></span></div>
+                <div><strong>Size:</strong> <span id="restore-size"></span></div>
+                <div><strong>File:</strong> <span id="restore-file" class="text-sm text-secondary"></span></div>
+            </div>
+        </div>
+        <div class="restore-confirm">
+            <label class="form-label" data-i18n="backup.type_restore">Type <strong>RESTORE</strong> to confirm:</label>
+            <input type="text" id="restore-confirm-input" class="form-control" autocomplete="off" spellcheck="false"
+                placeholder="Type RESTORE">
+        </div>
+        <form method="post" id="restore-form">
+            <input type="hidden" name="csrf_token" value="{{ csrf_token() }}">
+            <input type="hidden" name="confirm_text" id="restore-confirm-text">
+            <div class="restore-actions">
+                <button type="button" class="btn btn--ghost" id="restore-cancel"
+                    data-i18n="backup.cancel">Cancel</button>
+                <button type="submit" class="btn btn--danger" id="restore-submit" disabled>
+                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                        stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polyline points="1 4 1 10 7 10" />
+                        <path d="M3.51 15a9 9 0 1 0 2.13-9.36L1 10" />
+                    </svg>
+                    <span data-i18n="backup.confirm_restore">Restore Database</span>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        const modal = document.getElementById('restore-modal');
+        const overlay = document.getElementById('restore-overlay');
+        const closeBtn = document.getElementById('restore-close');
+        const cancelBtn = document.getElementById('restore-cancel');
+        const confirmInput = document.getElementById('restore-confirm-input');
+        const confirmHidden = document.getElementById('restore-confirm-text');
+        const submitBtn = document.getElementById('restore-submit');
+        const restoreForm = document.getElementById('restore-form');
+
+        function openRestoreModal(btn) {
+            document.getElementById('restore-date').textContent = btn.dataset.date;
+            document.getElementById('restore-size').textContent = btn.dataset.size;
+            document.getElementById('restore-file').textContent = btn.dataset.filename;
+            restoreForm.action = '/settings/backups/' + btn.dataset.filename + '/restore';
+            confirmInput.value = '';
+            submitBtn.disabled = true;
+            modal.classList.add('audit-modal--open');
+            confirmInput.focus();
+        }
+
+        function closeModal() {
+            modal.classList.remove('audit-modal--open');
+            confirmInput.value = '';
+            submitBtn.disabled = true;
+        }
+
+        // Enable submit only when "RESTORE" is typed
+        confirmInput.addEventListener('input', function () {
+            const match = this.value === 'RESTORE';
+            submitBtn.disabled = !match;
+            confirmHidden.value = this.value;
+        });
+
+        // Bind all restore buttons
+        document.querySelectorAll('.backup-restore-btn').forEach(function (btn) {
+            btn.addEventListener('click', function () { openRestoreModal(this); });
+        });
+
+        closeBtn.addEventListener('click', closeModal);
+        cancelBtn.addEventListener('click', closeModal);
+        overlay.addEventListener('click', closeModal);
+        document.addEventListener('keydown', function (e) {
+            if (e.key === 'Escape') closeModal();
+        });
+    });
+</script>
+{% endblock %}
