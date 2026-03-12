@@ -10,7 +10,7 @@ from flask_login import login_user, logout_user, login_required, current_user
 from app.extensions import db
 from app.auth import auth_bp
 from app.auth.forms import LoginForm, RegisterForm
-from app.models import User, SystemConfig
+from app.models import User, SystemConfig, AuditLog
 
 
 @auth_bp.route('/login', methods=['GET', 'POST'])
@@ -36,6 +36,15 @@ def login():
             next_page = request.args.get('next')
             return redirect(next_page or url_for('auth.post_login_redirect'))
         else:
+            # Log failed login attempt to audit trail
+            audit = AuditLog(
+                actor_user_id=user.id if user else 0,
+                entity_type='user',
+                entity_id=user.id if user else 0,
+                action='login_failed',
+            )
+            db.session.add(audit)
+            db.session.commit()
             flash('Invalid username or password.', 'error')
 
     return render_template('auth/login.html', form=form)

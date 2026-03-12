@@ -69,6 +69,45 @@
         toast._timer = timer;
     };
 
+    /**
+     * Show a gold-accented achievement toast (milestone celebration).
+     * @param {string} message  - Achievement message text
+     */
+    window.showAchievementToast = function (message) {
+        // Enforce max visible
+        const existing = container.querySelectorAll('.toast');
+        if (existing.length >= MAX_VISIBLE) {
+            dismissToast(existing[0]);
+        }
+
+        const toast = document.createElement('div');
+        toast.className = 'toast toast--achievement';
+        toast.innerHTML =
+            '<div class="toast__icon">' +
+            '<svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 22h16"/><path d="M10 22V8a5 5 0 0 1 10 0v14"/><path d="M14 22V8a5 5 0 0 0-10 0v14"/></svg>' +
+            '</div>' +
+            '<div class="toast__message">' + escapeHtml(message) + '</div>' +
+            '<button class="toast__close" aria-label="Dismiss">&times;</button>' +
+            '<div class="toast__progress"><div class="toast__progress-bar toast__progress-bar--achievement"></div></div>';
+
+        container.appendChild(toast);
+
+        requestAnimationFrame(function () {
+            toast.classList.add('toast--visible');
+        });
+
+        toast.querySelector('.toast__close').addEventListener('click', function () {
+            dismissToast(toast);
+        });
+
+        // Achievement toasts stay longer
+        var timer = setTimeout(function () {
+            dismissToast(toast);
+        }, 6000);
+
+        toast._timer = timer;
+    };
+
     function dismissToast(toast) {
         if (toast._dismissed) return;
         toast._dismissed = true;

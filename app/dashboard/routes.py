@@ -37,6 +37,56 @@ def _encouraging_message(achievement_pct):
         return {"text": "Every report counts! 🚀", "emoji": "🚀", "key": "every_counts"}
 
 
+def _check_achievements(user, year, current_month, achievement_pct,
+                         ytd_total, goals_in_progress, goals_total):
+    """Detect milestone achievements for the staff dashboard.
+
+    Uses Flask session to avoid showing the same achievement toast
+    on every page load within the same session.
+    """
+    from flask import session
+    shown_key = f'achievements_shown_{user.id}_{year}_{current_month}'
+    if session.get(shown_key):
+        return []
+
+    achievements = []
+
+    # 1. First report ever
+    total_reports = MonthlyReport.query.filter_by(user_id=user.id).count()
+    if total_reports == 1:
+        achievements.append("Welcome aboard! Your first report is in 🎉")
+
+    # 2. Hit monthly target this month
+    if achievement_pct is not None and achievement_pct >= 100:
+        achievements.append("Target reached! Outstanding this month 🏆")
+
+    # 3. All goals completed
+    if goals_total > 0 and goals_in_progress == 0:
+        completed = Goal.query.filter_by(
+            user_id=user.id, approval_status='approved', status='completed'
+        ).count()
+        if completed == goals_total:
+            achievements.append("All goals complete — what a year! 🌟")
+
+    # 4. Six-month consecutive streak
+    if current_month >= 6:
+        streak = True
+        for m in range(current_month - 5, current_month + 1):
+            report = MonthlyReport.query.filter_by(
+                user_id=user.id, year=year, month=m
+            ).first()
+            if not report:
+                streak = False
+                break
+        if streak:
+            achievements.append("6 months straight — incredible consistency! 🔥")
+
+    if achievements:
+        session[shown_key] = True
+
+    return achievements
+
+
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
 # STAFF DASHBOARD
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -82,6 +132,11 @@ def staff():
         user_id=current_user.id, approval_status='approved'
     ).count()
 
+    # ── Achievement milestones ─────────────────────────────────
+    achievements = _check_achievements(current_user, year, current_month,
+                                        achievement_pct, ytd_total,
+                                        goals_in_progress, goals_total)
+
     return render_template('dashboard/staff.html',
                            year=year,
                            reports_this_month=reports_this_month,
@@ -92,7 +147,8 @@ def staff():
                            ytd_total=ytd_total,
                            goals_in_progress=goals_in_progress,
                            goals_total=goals_total,
-                           current_month=current_month)
+                           current_month=current_month,
+                           achievements=achievements)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━

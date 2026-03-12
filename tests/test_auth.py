@@ -55,6 +55,18 @@ class TestLogin:
         resp = login(client, 'deactivated', 'test123')
         assert b'deactivated' in resp.data.lower() or b'contact' in resp.data.lower()
 
+    def test_failed_login_creates_audit_log(self, client, db, admin_user):
+        """Failed login should create an AuditLog entry."""
+        from app.models import AuditLog
+        client.post('/auth/login', data={
+            'username': 'admin',
+            'password': 'wrongpassword',
+        }, follow_redirects=True)
+        log = AuditLog.query.filter_by(action='login_failed').first()
+        assert log is not None
+        assert log.entity_type == 'user'
+        assert log.actor_user_id == admin_user.id
+
 
 class TestRegister:
     """Registration endpoint tests."""

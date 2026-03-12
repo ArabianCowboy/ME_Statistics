@@ -226,3 +226,59 @@ def export_team():
 
     filename = f'ME_Team_Summary_{year}.xlsx'
     return _send_workbook(wb, filename)
+
+
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+# PDF EXPORT ROUTES
+# ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
+
+@export_bp.route('/export/my-report-pdf')
+@login_required
+@active_required
+def export_my_report_pdf():
+    """Staff: export own data as PDF."""
+    from app.export.pdf_generator import build_user_pdf
+    year = request.args.get('year', datetime.now().year, type=int)
+    buffer = build_user_pdf(current_user, year, generated_by=current_user.full_name)
+    filename = f'ME_Report_{current_user.username}_{year}.pdf'
+    return send_file(
+        buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=filename,
+    )
+
+
+@export_bp.route('/export/user/<int:user_id>/pdf')
+@login_required
+@admin_required
+def export_user_pdf(user_id):
+    """Admin: export specific user's data as PDF."""
+    from app.export.pdf_generator import build_user_pdf
+    user = User.query.get_or_404(user_id)
+    year = request.args.get('year', datetime.now().year, type=int)
+    buffer = build_user_pdf(user, year, generated_by=current_user.full_name)
+    filename = f'ME_Report_{user.username}_{year}.pdf'
+    return send_file(
+        buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=filename,
+    )
+
+
+@export_bp.route('/export/team-pdf')
+@login_required
+@admin_required
+def export_team_pdf():
+    """Admin: export team summary as PDF."""
+    from app.export.pdf_generator import build_team_pdf
+    year = request.args.get('year', datetime.now().year, type=int)
+    buffer = build_team_pdf(year, generated_by=current_user.full_name)
+    filename = f'ME_Team_Summary_{year}.pdf'
+    return send_file(
+        buffer,
+        mimetype='application/pdf',
+        as_attachment=True,
+        download_name=filename,
+    )

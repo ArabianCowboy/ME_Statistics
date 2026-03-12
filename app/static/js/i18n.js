@@ -115,7 +115,10 @@
 
         // Actions
         'action.add': { en: 'Add', ar: 'إضافة' },
-        'action.export': { en: 'Export Excel', ar: 'تصدير Excel' },
+        'action.export': { en: 'Export', ar: 'تصدير' },
+        'action.export_excel': { en: 'Export Excel', ar: 'تصدير Excel' },
+        'action.export_pdf': { en: 'Export PDF', ar: 'تصدير PDF' },
+        'action.export_team': { en: 'Export Team', ar: 'تصدير الفريق' },
         'action.new_report': { en: 'New Report', ar: 'تقرير جديد' },
         'action.new_goal': { en: 'New Goal', ar: 'هدف جديد' },
         'action.new_task': { en: 'New Task', ar: 'مهمة جديدة' },
@@ -244,6 +247,62 @@
         'backup.type_restore': { en: 'Type RESTORE to confirm:', ar: 'اكتب RESTORE للتأكيد:' },
         'backup.cancel': { en: 'Cancel', ar: 'إلغاء' },
         'backup.confirm_restore': { en: 'Restore Database', ar: 'استعادة قاعدة البيانات' },
+
+        // ── Form Pages (shared) ──────────────────────────────
+        'back': { en: 'Back', ar: 'رجوع' },
+        'cancel': { en: 'Cancel', ar: 'إلغاء' },
+        'optional': { en: '(optional)', ar: '(اختياري)' },
+        'status': { en: 'Status', ar: 'الحالة' },
+        'priority': { en: 'Priority', ar: 'الأولوية' },
+        'progress_pct': { en: 'Progress (%)', ar: 'التقدم (٪)' },
+        'comments': { en: 'Comments', ar: 'التعليقات' },
+        'comments_placeholder': { en: 'Additional notes…', ar: 'ملاحظات إضافية…' },
+        'notes': { en: 'Notes', ar: 'ملاحظات' },
+        'notes_placeholder': { en: 'Any additional comments...', ar: 'أي ملاحظات إضافية...' },
+
+        // Status options
+        'status_not_started': { en: 'Not Started', ar: 'لم يبدأ' },
+        'status_in_progress': { en: 'In Progress', ar: 'قيد التنفيذ' },
+        'status_completed': { en: 'Completed', ar: 'مكتمل' },
+
+        // Priority options
+        'priority_high': { en: 'High', ar: 'عالية' },
+        'priority_medium': { en: 'Medium', ar: 'متوسطة' },
+        'priority_low': { en: 'Low', ar: 'منخفضة' },
+
+        // ── Task Form ────────────────────────────────────────
+        'new_task': { en: 'New Task', ar: 'مهمة جديدة' },
+        'edit_task': { en: 'Edit Task', ar: 'تعديل المهمة' },
+        'new_task_subtitle': { en: 'Add a short-term or ad-hoc assignment.', ar: 'إضافة مهمة قصيرة المدى أو طارئة.' },
+        'edit_task_subtitle': { en: 'Update this task.', ar: 'تحديث هذه المهمة.' },
+        'task_description': { en: 'Task Description', ar: 'وصف المهمة' },
+        'task_description_placeholder': { en: 'e.g. Review Q1 medication error trends', ar: 'مثال: مراجعة اتجاهات أخطاء الأدوية للربع الأول' },
+        'create_task': { en: 'Create Task', ar: 'إنشاء المهمة' },
+        'update_task': { en: 'Update Task', ar: 'تحديث المهمة' },
+
+        // ── Goal Form ────────────────────────────────────────
+        'new_goal': { en: 'New Goal', ar: 'هدف جديد' },
+        'edit_goal': { en: 'Edit Goal', ar: 'تعديل الهدف' },
+        'new_goal_subtitle': { en: 'Define a new annual or long-term goal.', ar: 'تحديد هدف سنوي أو طويل المدى.' },
+        'edit_goal_subtitle': { en: 'Update this performance goal.', ar: 'تحديث هذا الهدف.' },
+        'goal_title': { en: 'Goal Title', ar: 'عنوان الهدف' },
+        'goal_title_placeholder': { en: 'e.g. Reduce medication errors by 20%', ar: 'مثال: تقليل أخطاء الأدوية بنسبة ٢٠٪' },
+        'kpi': { en: 'KPI', ar: 'مؤشر الأداء' },
+        'kpi_placeholder': { en: 'e.g. Error rate per 1000 prescriptions', ar: 'مثال: معدل الأخطاء لكل ١٠٠٠ وصفة' },
+        'create_goal': { en: 'Create Goal', ar: 'إنشاء الهدف' },
+        'update_goal': { en: 'Update Goal', ar: 'تحديث الهدف' },
+
+        // ── Report Form ──────────────────────────────────────
+        'new_monthly_report': { en: 'New Monthly Report', ar: 'تقرير شهري جديد' },
+        'edit_report': { en: 'Edit Report', ar: 'تعديل التقرير' },
+        'new_report_subtitle': { en: 'Log your medication error report count for a specific month.', ar: 'سجّل عدد تقارير أخطاء الأدوية لشهر معين.' },
+        'edit_report_subtitle': { en: 'Update the details of this report.', ar: 'تحديث تفاصيل هذا التقرير.' },
+        'year': { en: 'Year', ar: 'السنة' },
+        'month': { en: 'Month', ar: 'الشهر' },
+        'report_count': { en: 'Report Count', ar: 'عدد التقارير' },
+        'report_count_placeholder': { en: 'Total ME reports processed this month', ar: 'إجمالي تقارير أخطاء الأدوية المعالجة هذا الشهر' },
+        'submit_report': { en: 'Submit Report', ar: 'إرسال التقرير' },
+        'update_report': { en: 'Update Report', ar: 'تحديث التقرير' },
     };
 
     // ── State ────────────────────────────────────────────────
@@ -259,14 +318,19 @@
 
     function applyTranslations() {
         document.querySelectorAll('[data-i18n]').forEach(function (el) {
-            const key = el.getAttribute('data-i18n');
-            const translated = t(key);
+            var key = el.getAttribute('data-i18n');
+            var translated = t(key);
             // For inputs, set placeholder; for others, set text
             if (el.tagName === 'INPUT' && el.hasAttribute('placeholder')) {
                 el.placeholder = translated;
             } else {
                 el.textContent = translated;
             }
+        });
+        // Handle placeholder translations separately
+        document.querySelectorAll('[data-i18n-placeholder]').forEach(function (el) {
+            var key = el.getAttribute('data-i18n-placeholder');
+            el.placeholder = t(key);
         });
     }
 

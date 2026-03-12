@@ -133,3 +133,49 @@ class TestAuditLogViewer:
         db.session.commit()
         resp = client.get('/settings/audit-log?entity=user')
         assert resp.status_code == 200
+
+
+class TestPDFExport:
+    """PDF export endpoint tests."""
+
+    def test_staff_can_export_own_pdf(self, client, db, staff_user):
+        """Staff should be able to download their own PDF report."""
+        login(client, 'staff', 'staff123')
+        resp = client.get('/export/my-report-pdf?year=2026')
+        assert resp.status_code == 200
+        assert resp.content_type == 'application/pdf'
+
+    def test_admin_can_export_team_pdf(self, client, db, admin_user):
+        """Admin should be able to download team summary PDF."""
+        login(client, 'admin', 'admin123')
+        resp = client.get('/export/team-pdf?year=2026')
+        assert resp.status_code == 200
+        assert resp.content_type == 'application/pdf'
+
+    def test_admin_can_export_user_pdf(self, client, db, admin_user, staff_user):
+        """Admin should be able to download a specific user's PDF."""
+        login(client, 'admin', 'admin123')
+        resp = client.get(f'/export/user/{staff_user.id}/pdf?year=2026')
+        assert resp.status_code == 200
+        assert resp.content_type == 'application/pdf'
+
+
+class TestGoalNotification:
+    """Goal submission notifies admins."""
+
+    def test_goal_creation_notifies_admins(self, client, db, admin_user, staff_user):
+        """When a staff creates a goal requiring approval, admins should be notified."""
+        # Enable goal approval
+        SystemConfig.set('goal_approval_required', 'true')
+        login(client, 'staff', 'staff123')
+        resp = client.post('/logs/goals/new', data={
+            'title': 'Test Goal For Notification',
+            'kpi': 'Some KPI',
+            'priority': 'medium',
+        }, follow_redirects=True)
+        assert resp.status_code == 200
+        # Check that admin got notified
+        from app.models import Notification
+        notif = Notification.query.filter_by(user_id=admin_user.id).first()
+        assert notif is not None
+        assert 'Test Goal' in notif.message
