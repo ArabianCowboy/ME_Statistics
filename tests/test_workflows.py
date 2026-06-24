@@ -7,7 +7,7 @@ goal approval, backup operations, and health endpoint.
 
 import pytest
 from tests.conftest import login
-from app.models import User, MonthlyReport, Goal, AuditLog, SystemConfig
+from app.models import User, MonthlyReport, Goal, AuditLog, Notification, SystemConfig
 
 
 class TestUserApprovalWorkflow:
@@ -179,3 +179,31 @@ class TestGoalNotification:
         notif = Notification.query.filter_by(user_id=admin_user.id).first()
         assert notif is not None
         assert 'Test Goal' in notif.message
+
+
+class TestAdminEditOwnershipPreservation:
+    """Admin edits to another user's content should not reset approval."""
+
+    def test_admin_edit_report_does_not_reset_approval(self, client, db, admin_user, staff_user):
+        """Admin editing a staff report should keep approval_status intact."""
+        login(client, 'staff', 'staff123')
+        client.post('/logs/reports/new', data={
+            'year': '2026', 'month': '4',
+            'report_count': '10', 'notes': 'April',
+        }, follow_redirects=True)
+        report = MonthlyReport.query.filter_by(
+            user_id=staff_user.id, year=2026, month=4
+        ).first()
+        report.approval_status = 'approved'
+        db.session.commit()
+
+        login(client, 'admin', 'admin123')
+        resp = client.post(f'/logs/reports/{report.id}/edit', data={
+            'year': '2026', 'month': '4',
+            'report_count': '12', 'notes': 'April updated',
+        }, follow_redirects=True)
+        assert resp.status_code == 200
+
+        db.session.refresh(report)
+        assert report.report_count == 12
+        assert report.approval_status == 'approved'

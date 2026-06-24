@@ -67,6 +67,21 @@ class TestLogin:
         assert log.entity_type == 'user'
         assert log.actor_user_id == admin_user.id
 
+    def test_nonexistent_user_no_audit_log(self, client, db):
+        """Non-existent username returns 'Invalid' flash and writes NO AuditLog."""
+        from app.models import AuditLog
+        resp = client.post('/auth/login', data={
+            'username': 'completely_nonexistent_user_xyz',
+            'password': 'anypassword',
+        }, follow_redirects=True)
+        assert b'Invalid' in resp.data
+        log = AuditLog.query.filter_by(
+            action='login_failed',
+            entity_type='user',
+            entity_id=0
+        ).first()
+        assert log is None
+
 
 class TestRegister:
     """Registration endpoint tests."""

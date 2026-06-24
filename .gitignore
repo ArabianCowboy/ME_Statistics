@@ -84,7 +84,7 @@ models/
 data/
 
 # Logs
-logs/
+/logs/
 *.log
 
 # AI/Agent specific

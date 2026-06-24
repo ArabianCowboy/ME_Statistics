@@ -1,0 +1,119 @@
+{% extends "base.html" %}
+
+{% block title %}Monthly Reports — ME Statistics{% endblock %}
+
+{% block nav_reports %}sidebar__link--active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-header__title" data-i18n="page.reports">Monthly Reports</h1>
+        <p class="page-header__subtitle">
+            <span data-i18n="reports.subtitle">Log and view monthly statistical data.</span>
+        </p>
+    </div>
+</div>
+
+{% if not editing_report %}
+<!-- ═══ Submit Report Form ═══ -->
+<div class="card mb-6">
+    <h3 class="card__section-title mb-4" data-i18n="reports.log_new">Log New Report</h3>
+    <form method="POST" action="{{ url_for('logs.reports_new') }}">
+        {{ form.csrf_token }}
+        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            <div class="form-group">
+                {{ form.year.label(class="form-label") }}
+                {{ form.year(class="form-input") }}
+            </div>
+            <div class="form-group">
+                {{ form.month.label(class="form-label") }}
+                {{ form.month(class="form-input") }}
+            </div>
+            <div class="form-group">
+                {{ form.report_count.label(class="form-label") }}
+                {{ form.report_count(class="form-input", placeholder="0") }}
+            </div>
+        </div>
+        <div class="form-group mb-4">
+            {{ form.notes.label(class="form-label") }}
+            {{ form.notes(class="form-input", rows="3", placeholder="Any additional notes...") }}
+        </div>
+        <button type="submit" class="btn btn--primary">{{ form.submit.label.text }}</button>
+    </form>
+</div>
+{% else %}
+<!-- ═══ Edit Report Form ═══ -->
+<div class="card mb-6">
+    <h3 class="card__section-title mb-4" data-i18n="reports.edit">Edit Report</h3>
+    <form method="POST" action="{{ url_for('logs.reports_edit', report_id=editing_report.id) }}">
+        {{ form.csrf_token }}
+        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            <div class="form-group">
+                {{ form.year.label(class="form-label") }}
+                {{ form.year(class="form-input") }}
+            </div>
+            <div class="form-group">
+                {{ form.month.label(class="form-label") }}
+                {{ form.month(class="form-input") }}
+            </div>
+            <div class="form-group">
+                {{ form.report_count.label(class="form-label") }}
+                {{ form.report_count(class="form-input") }}
+            </div>
+        </div>
+        <div class="form-group mb-4">
+            {{ form.notes.label(class="form-label") }}
+            {{ form.notes(class="form-input", rows="3") }}
+        </div>
+        <button type="submit" class="btn btn--primary">{{ form.submit.label.text }}</button>
+        <a href="{{ url_for('logs.reports') }}" class="btn btn--secondary ml-2">Cancel</a>
+    </form>
+</div>
+{% endif %}
+
+<!-- ═══ Reports List Table ═══ -->
+<div class="data-table-wrapper">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th data-i18n="th.period">Period</th>
+                <th data-i18n="th.report_count">Report Count</th>
+                <th data-i18n="th.target">Target Snapshot</th>
+                <th data-i18n="th.status">Approval Status</th>
+                <th data-i18n="th.actions">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for report in reports %}
+            <tr>
+                <td class="fw-600">{{ report.year }} - {{ report.month | string }}</td>
+                <td class="fw-600">{{ report.report_count }}</td>
+                <td>{{ report.target_snapshot }}</td>
+                <td>
+                    {% if report.approval_status == 'pending' %}
+                    <span class="status-badge status-badge--warning" data-i18n="status.pending">Pending</span>
+                    {% elif report.approval_status == 'rejected' %}
+                    <span class="status-badge status-badge--danger" data-i18n="status.rejected">Rejected</span>
+                    {% else %}
+                    <span class="status-badge status-badge--success" data-i18n="status.approved">Approved</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="action-group">
+                        <a href="{{ url_for('logs.reports_edit', report_id=report.id) }}" class="btn btn--sm btn--ghost" title="Edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                            </svg>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center text-secondary" style="padding: 32px;" data-i18n="reports.no_data">No reports logged yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

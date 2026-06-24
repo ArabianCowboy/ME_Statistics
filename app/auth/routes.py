@@ -36,15 +36,15 @@ def login():
             next_page = request.args.get('next')
             return redirect(next_page or url_for('auth.post_login_redirect'))
         else:
-            # Log failed login attempt to audit trail
-            audit = AuditLog(
-                actor_user_id=user.id if user else 0,
-                entity_type='user',
-                entity_id=user.id if user else 0,
-                action='login_failed',
-            )
-            db.session.add(audit)
-            db.session.commit()
+            if user:
+                audit = AuditLog(
+                    actor_user_id=user.id,
+                    entity_type='user',
+                    entity_id=user.id,
+                    action='login_failed',
+                )
+                db.session.add(audit)
+                db.session.commit()
             flash('Invalid username or password.', 'error')
 
     return render_template('auth/login.html', form=form)

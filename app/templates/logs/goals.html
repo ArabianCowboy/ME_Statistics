@@ -1,0 +1,142 @@
+{% extends "base.html" %}
+
+{% block title %}Goals — ME Statistics{% endblock %}
+
+{% block nav_goals %}sidebar__link--active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-header__title" data-i18n="page.goals">Goals</h1>
+        <p class="page-header__subtitle">
+            <span data-i18n="goals.subtitle">Manage and track your annual goals.</span>
+        </p>
+    </div>
+</div>
+
+{% if current_user.can_create_goals or current_user.is_admin %}
+    {% if not editing_goal %}
+    <!-- ═══ Submit Goal Form ═══ -->
+    <div class="card mb-6">
+        <h3 class="card__section-title mb-4" data-i18n="goals.new">Create New Goal</h3>
+        <form method="POST" action="{{ url_for('logs.goals_new') }}">
+            {{ form.csrf_token }}
+            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                <div class="form-group">
+                    {{ form.title.label(class="form-label") }}
+                    {{ form.title(class="form-input", placeholder="e.g. Complete training program") }}
+                </div>
+                <div class="form-group">
+                    {{ form.kpi.label(class="form-label") }}
+                    {{ form.kpi(class="form-input", placeholder="e.g. Hours completed") }}
+                </div>
+                <div class="form-group">
+                    {{ form.priority.label(class="form-label") }}
+                    {{ form.priority(class="form-input") }}
+                </div>
+            </div>
+            <button type="submit" class="btn btn--primary">{{ form.submit.label.text }}</button>
+        </form>
+    </div>
+    {% else %}
+    <!-- ═══ Edit Goal Form ═══ -->
+    <div class="card mb-6">
+        <h3 class="card__section-title mb-4" data-i18n="goals.edit">Edit Goal</h3>
+        <form method="POST" action="{{ url_for('logs.goals_edit', goal_id=editing_goal.id) }}">
+            {{ form.csrf_token }}
+            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                <div class="form-group">
+                    {{ form.title.label(class="form-label") }}
+                    {{ form.title(class="form-input") }}
+                </div>
+                <div class="form-group">
+                    {{ form.kpi.label(class="form-label") }}
+                    {{ form.kpi(class="form-input") }}
+                </div>
+                <div class="form-group">
+                    {{ form.priority.label(class="form-label") }}
+                    {{ form.priority(class="form-input") }}
+                </div>
+            </div>
+            <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+                <div class="form-group">
+                    {{ form.status.label(class="form-label") }}
+                    {{ form.status(class="form-input") }}
+                </div>
+                <div class="form-group">
+                    {{ form.progress.label(class="form-label") }}
+                    {{ form.progress(class="form-input") }}
+                </div>
+            </div>
+            <div class="form-group mb-4">
+                {{ form.comments.label(class="form-label") }}
+                {{ form.comments(class="form-input", rows="3") }}
+            </div>
+            <button type="submit" class="btn btn--primary">{{ form.submit.label.text }}</button>
+            <a href="{{ url_for('logs.goals') }}" class="btn btn--secondary ml-2">Cancel</a>
+        </form>
+    </div>
+    {% endif %}
+{% endif %}
+
+<!-- ═══ Goals List ═══ -->
+<div class="data-table-wrapper">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th data-i18n="th.goal">Goal</th>
+                <th data-i18n="th.kpi">KPI</th>
+                <th data-i18n="th.priority">Priority</th>
+                <th data-i18n="th.status">Status</th>
+                <th data-i18n="th.progress">Progress</th>
+                <th data-i18n="th.approval">Approval</th>
+                <th data-i18n="th.actions">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for goal in goals %}
+            <tr>
+                <td class="fw-600">{{ goal.title }}</td>
+                <td>{{ goal.kpi or '—' }}</td>
+                <td>
+                    <span class="badge badge--{{ 'teal' if goal.priority == 'high' else 'subtle' }}">
+                        {{ goal.priority | capitalize }}
+                    </span>
+                </td>
+                <td>{{ goal.status | replace('_', ' ') | capitalize }}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="flex-grow: 1; background: #e2e8f0; height: 6px; border-radius: 3px; overflow: hidden; width: 80px;">
+                            <div style="background: #0d9488; height: 100%; width: {{ goal.progress }}%;"></div>
+                        </div>
+                        <span class="text-sm fw-600">{{ goal.progress }}%</span>
+                    </div>
+                </td>
+                <td>
+                    {% if goal.approval_status == 'pending' %}
+                    <span class="status-badge status-badge--warning" data-i18n="status.pending">Pending</span>
+                    {% elif goal.approval_status == 'rejected' %}
+                    <span class="status-badge status-badge--danger" data-i18n="status.rejected">Rejected</span>
+                    {% else %}
+                    <span class="status-badge status-badge--success" data-i18n="status.approved">Approved</span>
+                    {% endif %}
+                </td>
+                <td>
+                    <div class="action-group">
+                        <a href="{{ url_for('logs.goals_edit', goal_id=goal.id) }}" class="btn btn--sm btn--ghost" title="Edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                            </svg>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="7" class="text-center text-secondary" style="padding: 32px;" data-i18n="goals.no_data">No goals defined yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}

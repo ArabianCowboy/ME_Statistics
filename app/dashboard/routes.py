@@ -70,15 +70,12 @@ def _check_achievements(user, year, current_month, achievement_pct,
 
     # 4. Six-month consecutive streak
     if current_month >= 6:
-        streak = True
-        for m in range(current_month - 5, current_month + 1):
-            report = MonthlyReport.query.filter_by(
-                user_id=user.id, year=year, month=m
-            ).first()
-            if not report:
-                streak = False
-                break
-        if streak:
+        streak_months = MonthlyReport.query.filter(
+            MonthlyReport.user_id == user.id,
+            MonthlyReport.year == year,
+            MonthlyReport.month.in_(range(current_month - 5, current_month + 1))
+        ).count()
+        if streak_months == 6:
             achievements.append("6 months straight — incredible consistency! 🔥")
 
     if achievements:

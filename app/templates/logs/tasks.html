@@ -1,0 +1,118 @@
+{% extends "base.html" %}
+
+{% block title %}Tasks — ME Statistics{% endblock %}
+
+{% block nav_tasks %}sidebar__link--active{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <h1 class="page-header__title" data-i18n="page.tasks">Tasks</h1>
+        <p class="page-header__subtitle">
+            <span data-i18n="tasks.subtitle">Track short-term or ad-hoc tasks.</span>
+        </p>
+    </div>
+</div>
+
+{% if not editing_task %}
+<!-- ═══ Submit Task Form ═══ -->
+<div class="card mb-6">
+    <h3 class="card__section-title mb-4" data-i18n="tasks.new">Create New Task</h3>
+    <form method="POST" action="{{ url_for('logs.tasks_new') }}">
+        {{ form.csrf_token }}
+        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            <div class="form-group">
+                {{ form.description.label(class="form-label") }}
+                {{ form.description(class="form-input", placeholder="e.g. Update inventory guidelines") }}
+            </div>
+            <div class="form-group">
+                {{ form.priority.label(class="form-label") }}
+                {{ form.priority(class="form-input") }}
+            </div>
+        </div>
+        <button type="submit" class="btn btn--primary">{{ form.submit.label.text }}</button>
+    </form>
+</div>
+{% else %}
+<!-- ═══ Edit Task Form ═══ -->
+<div class="card mb-6">
+    <h3 class="card__section-title mb-4" data-i18n="tasks.edit">Edit Task</h3>
+    <form method="POST" action="{{ url_for('logs.tasks_edit', task_id=editing_task.id) }}">
+        {{ form.csrf_token }}
+        <div class="form-group mb-4">
+            {{ form.description.label(class="form-label") }}
+            {{ form.description(class="form-input") }}
+        </div>
+        <div class="form-grid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 16px; margin-bottom: 16px;">
+            <div class="form-group">
+                {{ form.priority.label(class="form-label") }}
+                {{ form.priority(class="form-input") }}
+            </div>
+            <div class="form-group">
+                {{ form.status.label(class="form-label") }}
+                {{ form.status(class="form-input") }}
+            </div>
+            <div class="form-group">
+                {{ form.progress.label(class="form-label") }}
+                {{ form.progress(class="form-input") }}
+            </div>
+        </div>
+        <div class="form-group mb-4">
+            {{ form.comments.label(class="form-label") }}
+            {{ form.comments(class="form-input", rows="3") }}
+        </div>
+        <button type="submit" class="btn btn--primary">{{ form.submit.label.text }}</button>
+        <a href="{{ url_for('logs.tasks') }}" class="btn btn--secondary ml-2">Cancel</a>
+    </form>
+</div>
+{% endif %}
+
+<!-- ═══ Tasks List ═══ -->
+<div class="data-table-wrapper">
+    <table class="data-table">
+        <thead>
+            <tr>
+                <th data-i18n="th.task">Task</th>
+                <th data-i18n="th.priority">Priority</th>
+                <th data-i18n="th.status">Status</th>
+                <th data-i18n="th.progress">Progress</th>
+                <th data-i18n="th.actions">Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for task in tasks %}
+            <tr>
+                <td class="fw-600">{{ task.description }}</td>
+                <td>
+                    <span class="badge badge--{{ 'teal' if task.priority == 'high' else 'subtle' }}">
+                        {{ task.priority | capitalize }}
+                    </span>
+                </td>
+                <td>{{ task.status | replace('_', ' ') | capitalize }}</td>
+                <td>
+                    <div style="display: flex; align-items: center; gap: 8px;">
+                        <div style="flex-grow: 1; background: #e2e8f0; height: 6px; border-radius: 3px; overflow: hidden; width: 80px;">
+                            <div style="background: #0d9488; height: 100%; width: {{ task.progress }}%;"></div>
+                        </div>
+                        <span class="text-sm fw-600">{{ task.progress }}%</span>
+                    </div>
+                </td>
+                <td>
+                    <div class="action-group">
+                        <a href="{{ url_for('logs.tasks_edit', task_id=task.id) }}" class="btn btn--sm btn--ghost" title="Edit">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
+                            </svg>
+                        </a>
+                    </div>
+                </td>
+            </tr>
+            {% else %}
+            <tr>
+                <td colspan="5" class="text-center text-secondary" style="padding: 32px;" data-i18n="tasks.no_data">No tasks defined yet.</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endblock %}
