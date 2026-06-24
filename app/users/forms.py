@@ -44,7 +44,8 @@ class CreateUserForm(FlaskForm):
     ], default='en')
 
     def validate_username(self, field):
-        if User.query.filter_by(username=field.data).first():
+        from sqlalchemy import func
+        if User.query.filter(func.lower(User.username) == field.data.strip().lower()).first():
             raise validators.ValidationError('Username already taken.')
 
     def validate_email(self, field):

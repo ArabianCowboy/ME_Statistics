@@ -12,8 +12,8 @@ from app.models import User
 
 class LoginForm(FlaskForm):
     """Login form — username + password."""
-    username = StringField('Username', validators=[
-        DataRequired(message='Username is required.'),
+    username = StringField('Username or Email', validators=[
+        DataRequired(message='Username or email is required.'),
     ])
     password = PasswordField('Password', validators=[
         DataRequired(message='Password is required.'),
@@ -47,9 +47,11 @@ class RegisterForm(FlaskForm):
     submit = SubmitField('Register')
 
     def validate_username(self, field):
-        if User.query.filter_by(username=field.data).first():
+        from sqlalchemy import func
+        if User.query.filter(func.lower(User.username) == field.data.strip().lower()).first():
             raise ValidationError('This username is already taken.')
 
     def validate_email(self, field):
-        if User.query.filter_by(email=field.data).first():
+        from sqlalchemy import func
+        if User.query.filter(func.lower(User.email) == field.data.strip().lower()).first():
             raise ValidationError('This email is already registered.')

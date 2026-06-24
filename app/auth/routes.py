@@ -7,6 +7,7 @@ Login, register, logout, and pending-approval views.
 import bcrypt
 from flask import render_template, redirect, url_for, flash, request
 from flask_login import login_user, logout_user, login_required, current_user
+from sqlalchemy import func
 from app.extensions import db
 from app.auth import auth_bp
 from app.auth.forms import LoginForm, RegisterForm
@@ -21,7 +22,11 @@ def login():
 
     form = LoginForm()
     if form.validate_on_submit():
-        user = User.query.filter_by(username=form.username.data).first()
+        # Accept either a username or an email, both case-insensitive
+        ident = form.username.data.strip().lower()
+        user = User.query.filter(
+            (func.lower(User.username) == ident) | (func.lower(User.email) == ident)
+        ).first()
 
         if user and bcrypt.checkpw(
             form.password.data.encode('utf-8'),

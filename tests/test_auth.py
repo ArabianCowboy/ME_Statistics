@@ -26,6 +26,24 @@ class TestLogin:
         resp = login(client, 'staff', 'staff123')
         assert resp.status_code == 200
 
+    def test_login_by_email(self, client, staff_user):
+        """Users can log in with their email instead of username."""
+        resp = login(client, 'staff@test.com', 'staff123')
+        assert resp.status_code == 200
+        assert b'Invalid' not in resp.data
+
+    def test_login_by_email_case_insensitive(self, client, staff_user):
+        """Email login is case-insensitive."""
+        resp = login(client, 'STAFF@TEST.COM', 'staff123')
+        assert resp.status_code == 200
+        assert b'Invalid' not in resp.data
+
+    def test_login_username_case_insensitive(self, client, staff_user):
+        """Username login is case-insensitive ('STAFF' logs in 'staff')."""
+        resp = login(client, 'STAFF', 'staff123')
+        assert resp.status_code == 200
+        assert b'Invalid' not in resp.data
+
     def test_login_wrong_password(self, client, admin_user):
         resp = client.post('/auth/login', data={
             'username': 'admin',
