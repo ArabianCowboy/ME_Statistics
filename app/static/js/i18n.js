@@ -16,6 +16,7 @@
         // Sidebar
         'nav.main': { en: 'Main', ar: 'الرئيسية' },
         'nav.dashboard': { en: 'Dashboard', ar: 'لوحة المعلومات' },
+        'nav.my_dashboard': { en: 'My Dashboard', ar: 'لوحتي' },
         'nav.reports': { en: 'Monthly Reports', ar: 'التقارير الشهرية' },
         'nav.goals': { en: 'Goals', ar: 'الأهداف' },
         'nav.tasks': { en: 'Tasks', ar: 'المهام' },
@@ -303,6 +304,21 @@
         'report_count_placeholder': { en: 'Total ME reports processed this month', ar: 'إجمالي تقارير أخطاء الأدوية المعالجة هذا الشهر' },
         'submit_report': { en: 'Submit Report', ar: 'إرسال التقرير' },
         'update_report': { en: 'Update Report', ar: 'تحديث التقرير' },
+
+        // Team Overview
+        'card.reports_month': { en: 'REPORTS THIS MONTH', ar: 'التقارير هذا الشهر' },
+        'card.inactive_month': { en: 'INACTIVE THIS MONTH', ar: 'غير نشط هذا الشهر' },
+        'card.staff_no_reports': { en: 'staff with no reports', ar: 'موظف بدون تقارير' },
+
+        'overview.title': { en: 'Team Overview', ar: 'نظرة عامة على الفريق' },
+        'overview.this_month': { en: 'This Month', ar: 'هذا الشهر' },
+        'overview.ytd': { en: 'YTD', ar: 'السنة' },
+        'overview.team_trend': { en: 'Team Monthly Trend', ar: 'الاتجاه الشهري للفريق' },
+        'overview.streak': { en: 'Streak', ar: 'التسلسل' },
+        'overview.last_report': { en: 'Last Report', ar: 'آخر تقرير' },
+        'overview.status_on_track': { en: 'On Track', ar: 'على المسار' },
+        'overview.status_at_risk': { en: 'At Risk', ar: 'في خطر' },
+        'overview.status_inactive': { en: 'Inactive', ar: 'غير نشط' },
     };
 
     // ── State ────────────────────────────────────────────────
@@ -383,5 +399,5 @@
     });
 
     // Expose for external use
-    window.i18n = { t: t, switchLang: switchLang, currentLang: function () { return currentLang; } };
+    window.i18n = { t: t, switchLang: switchLang, currentLang: function () { return currentLang; }, apply: applyTranslations };
 })();

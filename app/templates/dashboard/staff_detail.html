@@ -1,0 +1,240 @@
+{% extends "base.html" %}
+
+{% block title %}{{ staff.full_name }} — ME Statistics{% endblock %}
+
+{% block content %}
+<div class="page-header">
+    <div>
+        <a href="{{ url_for('dashboard.admin') }}" class="btn btn--ghost btn--sm mb-4" style="display:inline-flex;align-items:center;gap:6px;">
+            <svg xmlns="http://www.w3.org/2000/svg" width="14" height="14" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="15 18 9 12 15 6"/>
+            </svg>
+            <span data-i18n="back">Back to Dashboard</span>
+        </a>
+        <h1 class="page-header__title">{{ staff.full_name }}</h1>
+        <p class="page-header__subtitle">
+            {% if staff.is_admin %}
+            <span class="badge badge--info" style="margin-right:8px;">Admin</span>
+            {% endif %}
+            Target: {{ staff.monthly_target }} /month
+            &middot; YTD Total: {{ ytd_total }}
+            &middot; This Month: {{ reports_this_month }}
+            {% if achievement_pct is not none %}
+            &middot; Achievement: {{ achievement_pct }}%
+            {% endif %}
+        </p>
+    </div>
+</div>
+
+<!-- ═══ Achievement Summary ═══ -->
+<div class="cards-grid cards-grid--3 mb-6">
+    <div class="card card--no-hover">
+        <div class="card__icon card__icon--teal">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M15 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V7Z"/>
+                <path d="M14 2v4a2 2 0 0 0 2 2h4"/>
+            </svg>
+        </div>
+        <div class="card__label" data-i18n="card.reports_ytd">YTD Reports</div>
+        <div class="card__value">{{ ytd_total }}</div>
+    </div>
+    <div class="card card--no-hover">
+        <div class="card__icon card__icon--amber">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+        </div>
+        <div class="card__label" data-i18n="card.this_month">Current Month</div>
+        <div class="card__value">{{ reports_this_month }}<span class="card__value-sub"> / {{ target }}</span></div>
+    </div>
+    <div class="card card--hero">
+        <div class="card__label" data-i18n="card.achievement">Achievement</div>
+        <div class="card__value">
+            {% if achievement_pct is not none %}
+            {{ achievement_pct }}%
+            {% else %}
+            &mdash;
+            {% endif %}
+        </div>
+        <div class="card__change" style="color: rgba(255,255,255,0.8)">{{ year }} {{ staff.full_name }}</div>
+    </div>
+</div>
+
+<!-- ═══ Monthly Trend Chart ═══ -->
+<div class="card card--no-hover mb-6">
+    <div class="card__header-row">
+        <h3 class="card__section-title" data-i18n="chart.trend">Monthly Trend &mdash; {{ year }}</h3>
+    </div>
+    <div class="chart-container">
+        <canvas id="staffTrendChart"></canvas>
+    </div>
+</div>
+
+<!-- ═══ Goals ═══ -->
+<div class="card card--no-hover mb-6">
+    <div class="card__header-row">
+        <h3 class="card__section-title" data-i18n="nav.goals">Goals</h3>
+    </div>
+    {% if goals %}
+    <div class="data-table-wrapper" style="box-shadow:none;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th data-i18n="th.goal">Goal</th>
+                    <th data-i18n="th.status">Status</th>
+                    <th data-i18n="th.priority">Priority</th>
+                    <th data-i18n="th.progress">Progress</th>
+                    <th data-i18n="th.achievement">Approval</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for goal in goals %}
+                <tr>
+                    <td class="fw-600">{{ goal.title }}</td>
+                    <td>
+                        <span class="status-badge status-badge--{{ 'success' if goal.status == 'completed' else 'warning' if goal.status == 'in_progress' else 'info' }}">
+                            {{ goal.status | replace('_', ' ') | title }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="priority-badge priority-badge--{{ goal.priority }}">{{ goal.priority | upper }}</span>
+                    </td>
+                    <td>
+                        <div class="progress-bar" style="width:120px;">
+                            <div class="progress-bar__fill" style="width:{{ goal.progress }}%;"></div>
+                        </div>
+                        <span class="text-sm text-secondary">{{ goal.progress }}%</span>
+                    </td>
+                    <td>
+                        <span class="badge badge--{{ 'success' if goal.approval_status == 'approved' else 'warning' if goal.approval_status == 'pending' else 'danger' }}">
+                            {{ goal.approval_status | title }}
+                        </span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p class="text-secondary" data-i18n="empty.no_goals">No Goals Set</p>
+    </div>
+    {% endif %}
+</div>
+
+<!-- ═══ Tasks ═══ -->
+<div class="card card--no-hover">
+    <div class="card__header-row">
+        <h3 class="card__section-title" data-i18n="nav.tasks">Tasks</h3>
+    </div>
+    {% if tasks %}
+    <div class="data-table-wrapper" style="box-shadow:none;">
+        <table class="data-table">
+            <thead>
+                <tr>
+                    <th data-i18n="th.description">Description</th>
+                    <th data-i18n="th.status">Status</th>
+                    <th data-i18n="th.priority">Priority</th>
+                    <th data-i18n="th.progress">Progress</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for task in tasks %}
+                <tr>
+                    <td class="fw-600">{{ task.description }}</td>
+                    <td>
+                        <span class="status-badge status-badge--{{ 'success' if task.status == 'completed' else 'warning' if task.status == 'in_progress' else 'info' }}">
+                            {{ task.status | replace('_', ' ') | title }}
+                        </span>
+                    </td>
+                    <td>
+                        <span class="priority-badge priority-badge--{{ task.priority }}">{{ task.priority | upper }}</span>
+                    </td>
+                    <td>
+                        <div class="progress-bar" style="width:120px;">
+                            <div class="progress-bar__fill" style="width:{{ task.progress }}%;"></div>
+                        </div>
+                        <span class="text-sm text-secondary">{{ task.progress }}%</span>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+    {% else %}
+    <div class="empty-state">
+        <p class="text-secondary" data-i18n="empty.no_tasks">No Tasks Yet</p>
+    </div>
+    {% endif %}
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function () {
+        fetch('/dashboard/api/my-stats?year={{ year }}&user_id={{ staff.id }}')
+            .then(r => r.json())
+            .then(data => {
+                const ctx = document.getElementById('staffTrendChart').getContext('2d');
+                new Chart(ctx, {
+                    type: 'bar',
+                    data: {
+                        labels: data.labels,
+                        datasets: [{
+                            label: 'Reports',
+                            data: data.data,
+                            backgroundColor: 'rgba(13, 148, 136, 0.7)',
+                            borderColor: '#0D9488',
+                            borderWidth: 1,
+                            borderRadius: 6,
+                            maxBarThickness: 40,
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: { display: false },
+                        },
+                        scales: {
+                            y: {
+                                beginAtZero: true,
+                                grid: { color: 'rgba(0,0,0,0.04)' },
+                                ticks: { stepSize: 1, font: { family: "'Plus Jakarta Sans'" } }
+                            },
+                            x: {
+                                grid: { display: false },
+                                ticks: { font: { family: "'Plus Jakarta Sans'" } }
+                            }
+                        }
+                    },
+                    plugins: data.target > 0 ? [{
+                        id: 'targetLine',
+                        afterDraw: function (chart) {
+                            const yScale = chart.scales.y;
+                            const targetY = yScale.getPixelForValue(data.target);
+                            const ctx = chart.ctx;
+                            ctx.save();
+                            ctx.beginPath();
+                            ctx.setLineDash([6, 4]);
+                            ctx.strokeStyle = '#F59E0B';
+                            ctx.lineWidth = 2;
+                            ctx.moveTo(chart.chartArea.left, targetY);
+                            ctx.lineTo(chart.chartArea.right, targetY);
+                            ctx.stroke();
+                            ctx.fillStyle = '#F59E0B';
+                            ctx.font = "600 11px 'Plus Jakarta Sans'";
+                            ctx.fillText('Target: ' + data.target, chart.chartArea.right - 70, targetY - 6);
+                            ctx.restore();
+                        }
+                    }] : []
+                });
+            });
+    });
+</script>
+{% endblock %}

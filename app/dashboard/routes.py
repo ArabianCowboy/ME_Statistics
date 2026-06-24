@@ -158,6 +158,8 @@ def staff():
 def admin():
     """Admin dashboard: overview, approval queue, leaderboard, comparison."""
     year = request.args.get('year', _current_year(), type=int)
+    now = datetime.now()
+    current_month = now.month
 
     # ── Summary cards ─────────────────────────────────────────
     total_staff = User.query.filter_by(is_active=True, is_approved=True).count()
@@ -176,6 +178,41 @@ def admin():
         MonthlyReport.approval_status == 'approved'
     ).scalar()
 
+    # Reports this month (team total)
+    reports_this_month = db.session.query(
+        func.coalesce(func.sum(MonthlyReport.report_count), 0)
+    ).filter(
+        MonthlyReport.year == year,
+        MonthlyReport.month == current_month,
+        MonthlyReport.approval_status == 'approved'
+    ).scalar()
+
+    # Last month total (for trend arrow)
+    last_month = current_month - 1 if current_month > 1 else 12
+    last_month_year = year if current_month > 1 else year - 1
+    last_month_total = db.session.query(
+        func.coalesce(func.sum(MonthlyReport.report_count), 0)
+    ).filter(
+        MonthlyReport.year == last_month_year,
+        MonthlyReport.month == last_month,
+        MonthlyReport.approval_status == 'approved'
+    ).scalar()
+
+    # Inactive this month: active+approved staff with no approved report this month
+    active_ids = {u.id for u in User.query.filter_by(is_active=True, is_approved=True).with_entities(User.id).all()}
+    if active_ids:
+        submitted_ids = {
+            r[0] for r in db.session.query(MonthlyReport.user_id).filter(
+                MonthlyReport.user_id.in_(active_ids),
+                MonthlyReport.year == year,
+                MonthlyReport.month == current_month,
+                MonthlyReport.approval_status == 'approved'
+            ).distinct().all()
+        }
+        inactive_count = len(active_ids - submitted_ids)
+    else:
+        inactive_count = 0
+
     # ── Staff list for comparison selector ────────────────────
     staff_list = User.query.filter_by(
         is_active=True, is_approved=True
@@ -183,13 +220,61 @@ def admin():
 
     return render_template('dashboard/admin.html',
                            year=year,
+                           current_year=_current_year(),
                            total_staff=total_staff,
                            pending_registrations=pending_registrations,
                            pending_goals=pending_goals,
                            pending_reports=pending_reports,
                            pending_count=pending_count,
                            team_ytd=team_ytd,
+                           reports_this_month=reports_this_month,
+                           last_month_total=last_month_total,
+                           inactive_count=inactive_count,
                            staff_list=staff_list)
+
+
+@dashboard_bp.route('/admin/staff/<int:user_id>')
+@login_required
+@admin_required
+def admin_staff_detail(user_id):
+    """Admin drill-down: a single staff member's reports, goals, and tasks."""
+    year = request.args.get('year', _current_year(), type=int)
+    now = datetime.now()
+    current_month = now.month
+
+    staff = User.query.get_or_404(user_id)
+
+    goals = Goal.query.filter_by(user_id=user_id).order_by(Goal.created_at.desc()).all()
+    tasks = Task.query.filter_by(user_id=user_id).order_by(Task.created_at.desc()).all()
+
+    # Current month report
+    current_report = MonthlyReport.query.filter_by(
+        user_id=user_id, year=year, month=current_month,
+        approval_status='approved'
+    ).first()
+    reports_this_month = current_report.report_count if current_report else 0
+    target = staff.monthly_target
+    achievement_pct = round((reports_this_month / target) * 100, 1) if target > 0 else None
+
+    # YTD total
+    ytd_total = db.session.query(
+        func.coalesce(func.sum(MonthlyReport.report_count), 0)
+    ).filter(
+        MonthlyReport.user_id == user_id,
+        MonthlyReport.year == year,
+        MonthlyReport.approval_status == 'approved'
+    ).scalar()
+
+    return render_template('dashboard/staff_detail.html',
+                           year=year,
+                           staff=staff,
+                           goals=goals,
+                           tasks=tasks,
+                           reports_this_month=reports_this_month,
+                           ytd_total=ytd_total,
+                           achievement_pct=achievement_pct,
+                           target=target,
+                           current_month=current_month)
 
 
 # ━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━
@@ -289,11 +374,21 @@ MONTH_LABELS = [
 @login_required
 @active_required
 def api_my_stats():
-    """Return the logged-in user's monthly data for the year."""
+    """Return a user's monthly data for the year.
+    Admin can pass ?user_id= to view any staff member; otherwise returns current_user."""
     year = request.args.get('year', _current_year(), type=int)
+    user_id_param = request.args.get('user_id', type=int)
+
+    if user_id_param is not None and current_user.is_admin:
+        user_id = user_id_param
+        user = User.query.get(user_id)
+        target_val = user.monthly_target if user else 0
+    else:
+        user_id = current_user.id
+        target_val = current_user.monthly_target
 
     reports = MonthlyReport.query.filter_by(
-        user_id=current_user.id, year=year, approval_status='approved'
+        user_id=user_id, year=year, approval_status='approved'
     ).all()
 
     monthly_data = [0] * 12
@@ -304,7 +399,7 @@ def api_my_stats():
         'year': year,
         'labels': MONTH_LABELS,
         'data': monthly_data,
-        'target': current_user.monthly_target,
+        'target': target_val,
         'ytd_total': sum(monthly_data),
     })
 
@@ -416,4 +511,92 @@ def api_compare():
         'year': year,
         'labels': MONTH_LABELS,
         'datasets': datasets,
+    })
+
+
+@dashboard_bp.route('/api/team-overview')
+@login_required
+@admin_required
+def api_team_overview():
+    """Admin: per-staff workload overview + team monthly series."""
+    year = request.args.get('year', _current_year(), type=int)
+    now = datetime.now()
+    current_month = now.month
+
+    users = User.query.filter_by(is_active=True, is_approved=True).order_by(User.full_name).all()
+
+    # Batch-fetch all approved reports for the year to avoid N+1
+    all_reports = MonthlyReport.query.filter(
+        MonthlyReport.year == year,
+        MonthlyReport.approval_status == 'approved'
+    ).all()
+
+    from collections import defaultdict
+    by_user = defaultdict(list)
+    for r in all_reports:
+        by_user[r.user_id].append(r)
+
+    # Team monthly series
+    team_series = [0] * 12
+    for uid, report_list in by_user.items():
+        for r in report_list:
+            team_series[r.month - 1] += r.report_count
+
+    staff_data = []
+    for u in users:
+        reports = by_user.get(u.id, [])
+        monthly = [0] * 12
+        for r in reports:
+            monthly[r.month - 1] = r.report_count
+
+        ytd = sum(monthly)
+        this_month = monthly[current_month - 1]
+        target = u.monthly_target
+        target_yearly = target * 12
+        achievement_pct = round((ytd / target_yearly) * 100, 1) if target_yearly > 0 else None
+
+        months_submitted = sum(1 for c in monthly if c > 0)
+
+        # Streak: consecutive months ending at current month
+        streak = 0
+        for m in range(current_month - 1, -1, -1):
+            if monthly[m] > 0:
+                streak += 1
+            else:
+                break
+
+        # Last report date
+        dates = [r.updated_at or r.created_at for r in reports if r.updated_at or r.created_at]
+        last_report = max(dates).strftime('%Y-%m-%d') if dates else None
+
+        # Status
+        expected_so_far = target * current_month
+        if this_month == 0:
+            status = 'inactive'
+        elif target > 0 and ytd < 0.5 * expected_so_far:
+            status = 'at_risk'
+        else:
+            status = 'on_track'
+
+        staff_data.append({
+            'user_id': u.id,
+            'name': u.full_name,
+            'target': target,
+            'this_month': this_month,
+            'ytd': ytd,
+            'achievement_pct': achievement_pct,
+            'target_yearly': target_yearly,
+            'months_submitted': months_submitted,
+            'streak': streak,
+            'last_report': last_report,
+            'status': status,
+        })
+
+    staff_data.sort(key=lambda x: x['ytd'], reverse=True)
+
+    return jsonify({
+        'year': year,
+        'current_month': current_month,
+        'team_series': team_series,
+        'staff': staff_data,
     })

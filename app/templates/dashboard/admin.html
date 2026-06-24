@@ -77,6 +77,93 @@
         <div class="card__change" style="color: rgba(255,255,255,0.8)" data-i18n="card.reports_logged">{{ year }}
             reports logged</div>
     </div>
+
+    {% if year == current_year %}
+    <div class="card card--no-hover">
+        <div class="card__icon card__icon--green">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <rect width="18" height="18" x="3" y="4" rx="2" ry="2"/>
+                <line x1="16" y1="2" x2="16" y2="6"/>
+                <line x1="8" y1="2" x2="8" y2="6"/>
+                <line x1="3" y1="10" x2="21" y2="10"/>
+            </svg>
+        </div>
+        <div class="card__label" data-i18n="card.reports_month">Reports This Month</div>
+        <div class="card__value">{{ reports_this_month }}</div>
+        {% if last_month_total > 0 %}
+        <div class="card__change card__change--{{ 'up' if reports_this_month >= last_month_total else 'down' }}">
+            {{ '&#8593;' | safe if reports_this_month >= last_month_total else '&#8595;' | safe }}
+            vs {{ last_month_total }} last month
+        </div>
+        {% endif %}
+    </div>
+
+    <div class="card card--no-hover">
+        <div class="card__icon card__icon--amber">
+            <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none"
+                stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"/>
+                <line x1="12" y1="8" x2="12" y2="12"/>
+                <line x1="12" y1="16" x2="12.01" y2="16"/>
+            </svg>
+        </div>
+        <div class="card__label" data-i18n="card.inactive_month">Inactive This Month</div>
+        <div class="card__value">{{ inactive_count }}</div>
+        {% if inactive_count > 0 %}
+        <div class="card__change card__change--down" data-i18n="card.staff_no_reports">staff with no reports</div>
+        {% endif %}
+    </div>
+    {% endif %}
+</div>
+
+<!-- ═══ Team Overview ═══ -->
+<div class="card card--no-hover mb-6" id="team-overview">
+    <div class="card__header-row">
+        <h3 class="card__section-title" data-i18n="overview.title">Team Overview</h3>
+        <div class="chart-toggle" id="bar-chart-toggle">
+            <button class="chart-toggle__btn chart-toggle__btn--active" data-view="this_month" data-i18n="overview.this_month">This Month</button>
+            <button class="chart-toggle__btn" data-view="ytd" data-i18n="overview.ytd">YTD</button>
+        </div>
+    </div>
+
+    <!-- Charts Row -->
+    <div class="overview-charts">
+        <div class="overview-chart overview-chart--bar">
+            <div class="overview-chart__canvas">
+                <canvas id="staffBarChart"></canvas>
+            </div>
+        </div>
+        <div class="overview-chart overview-chart--trend">
+            <h4 class="card__section-title" style="font-size:0.85rem;margin-bottom:12px;" data-i18n="overview.team_trend">Team Monthly Trend</h4>
+            <div class="overview-chart__canvas">
+                <canvas id="teamTrendChart"></canvas>
+            </div>
+        </div>
+    </div>
+
+    <!-- Per-Staff Table -->
+    <div class="data-table-wrapper" style="box-shadow:none;margin-top:20px;">
+        <table class="data-table" id="team-overview-table">
+            <thead>
+                <tr>
+                    <th data-i18n="th.name">Name</th>
+                    <th data-i18n="th.target">Target</th>
+                    <th data-i18n="overview.this_month">This Month</th>
+                    <th data-i18n="th.ytd_total">YTD</th>
+                    <th data-i18n="lb.achievement">Achievement</th>
+                    <th data-i18n="overview.streak">Streak</th>
+                    <th data-i18n="th.status">Status</th>
+                    <th data-i18n="overview.last_report">Last Report</th>
+                </tr>
+            </thead>
+            <tbody id="team-overview-body">
+                <tr>
+                    <td colspan="8" class="text-center text-secondary" style="padding:32px;">Loading...</td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </div>
 
 <!-- ═══ Approval Queue ═══ -->
@@ -262,9 +349,199 @@
 <!-- ═══ Chart.js + Scripts ═══ -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.7/dist/chart.umd.min.js"></script>
 <script>
-    document.addEventListener('DOMContentLoaded', function () {
+    // ── Team Overview (charts + table) ─────────────────────────
+    let staffBarChart = null;
+    let teamTrendChart = null;
+    let teamOverviewData = null;
+    let barChartView = 'this_month';
 
-        // ── Admin Leaderboard ────────────────────────────────────
+    function renderStaffBarChart(view) {
+        if (!teamOverviewData) return;
+        if (typeof Chart === 'undefined') { console.warn('Chart.js not loaded — skipping bar chart.'); return; }
+        const staff = teamOverviewData.staff;
+        const labels = staff.map(s => s.name);
+        const values = staff.map(s => view === 'this_month' ? s.this_month : s.ytd);
+        const colors = staff.map(s => {
+            if (s.status === 'on_track') return '#10B981';
+            if (s.status === 'at_risk') return '#F59E0B';
+            return '#9CA3AF';
+        });
+
+        const ctx = document.getElementById('staffBarChart').getContext('2d');
+        if (staffBarChart) staffBarChart.destroy();
+
+        staffBarChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: view === 'this_month' ? 'This Month' : 'YTD',
+                    data: values,
+                    backgroundColor: colors,
+                    borderRadius: 4,
+                    maxBarThickness: 20,
+                }]
+            },
+            options: {
+                indexAxis: 'y',
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false },
+                    tooltip: {
+                        callbacks: {
+                            label: function (ctx) {
+                                const s = staff[ctx.dataIndex];
+                                return ctx.parsed.x + ' reports  |  ' + (s.achievement_pct !== null ? s.achievement_pct + '%' : 'N/A') + ' of target';
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    x: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, font: { family: "'Plus Jakarta Sans'" } },
+                        grid: { color: 'rgba(0,0,0,0.04)' }
+                    },
+                    y: {
+                        grid: { display: false },
+                        ticks: { font: { family: "'Plus Jakarta Sans'", size: 11 } }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderTeamTrendChart() {
+        if (!teamOverviewData) return;
+        if (typeof Chart === 'undefined') { console.warn('Chart.js not loaded — skipping trend chart.'); return; }
+        const series = teamOverviewData.team_series;
+        const labels = ['Jan','Feb','Mar','Apr','May','Jun','Jul','Aug','Sep','Oct','Nov','Dec'];
+
+        const ctx = document.getElementById('teamTrendChart').getContext('2d');
+        if (teamTrendChart) teamTrendChart.destroy();
+
+        teamTrendChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: labels,
+                datasets: [{
+                    label: 'Team Reports',
+                    data: series,
+                    backgroundColor: 'rgba(13, 148, 136, 0.08)',
+                    borderColor: '#0D9488',
+                    borderWidth: 2,
+                    fill: true,
+                    tension: 0.3,
+                    pointRadius: 3,
+                    pointBackgroundColor: '#0D9488',
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: { display: false }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        ticks: { stepSize: 1, font: { family: "'Plus Jakarta Sans'" } },
+                        grid: { color: 'rgba(0,0,0,0.04)' }
+                    },
+                    x: {
+                        grid: { display: false },
+                        ticks: { font: { family: "'Plus Jakarta Sans'" } }
+                    }
+                }
+            }
+        });
+    }
+
+    function renderTeamTable() {
+        if (!teamOverviewData) return;
+        const tbody = document.getElementById('team-overview-body');
+        tbody.innerHTML = '';
+        const staff = teamOverviewData.staff;
+
+        if (staff.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="8" class="text-center text-secondary" style="padding:32px;">No data yet.</td></tr>';
+            return;
+        }
+
+        staff.forEach(s => {
+            const achievement = s.achievement_pct !== null ? s.achievement_pct + '%' : 'N/A';
+            const lastReport = s.last_report || '—';
+            const statusBadge = s.status === 'on_track'
+                ? '<span class="badge badge--success" data-i18n="overview.status_on_track">On Track</span>'
+                : s.status === 'at_risk'
+                ? '<span class="badge badge--warning" data-i18n="overview.status_at_risk">At Risk</span>'
+                : '<span class="badge badge--neutral" data-i18n="overview.status_inactive">Inactive</span>';
+            const streak = s.streak > 0 ? s.streak + ' mo' : '—';
+
+            tbody.innerHTML += `
+                <tr class="clickable-row" data-user-id="${s.user_id}">
+                    <td class="fw-600">
+                        <a href="/dashboard/admin/staff/${s.user_id}">${s.name}</a>
+                    </td>
+                    <td>${s.target}</td>
+                    <td>${s.this_month}</td>
+                    <td class="fw-600">${s.ytd}</td>
+                    <td>${achievement}</td>
+                    <td>${streak}</td>
+                    <td>${statusBadge}</td>
+                    <td class="text-secondary text-sm">${lastReport}</td>
+                </tr>
+            `;
+        });
+
+        // Click row (but not the link inside) → navigate
+        tbody.addEventListener('click', function (e) {
+            const row = e.target.closest('.clickable-row');
+            if (row && e.target.tagName !== 'A') {
+                window.location.href = '/dashboard/admin/staff/' + row.dataset.userId;
+            }
+        });
+
+        // Re-apply i18n for dynamically injected data-i18n attributes
+        if (window.i18n && window.i18n.apply) {
+            window.i18n.apply();
+        }
+    }
+
+    // ── Chart toggle ──────────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
+        const toggleBtns = document.querySelectorAll('#bar-chart-toggle .chart-toggle__btn');
+        toggleBtns.forEach(btn => {
+            btn.addEventListener('click', function () {
+                toggleBtns.forEach(b => b.classList.remove('chart-toggle__btn--active'));
+                this.classList.add('chart-toggle__btn--active');
+                barChartView = this.dataset.view;
+                renderStaffBarChart(barChartView);
+            });
+        });
+
+        // ── Fetch team overview ────────────────────────────────
+        fetch('/dashboard/api/team-overview?year={{ year }}')
+            .then(r => r.json())
+            .then(data => {
+                teamOverviewData = data;
+                // Render the table first — it must always show even if a chart fails.
+                renderTeamTable();
+                // Charts are isolated so one failing (e.g. Chart.js CDN blocked)
+                // never prevents the drilldown table from rendering.
+                try { renderStaffBarChart(barChartView); } catch (e) { console.error('Bar chart failed:', e); }
+                try { renderTeamTrendChart(); } catch (e) { console.error('Trend chart failed:', e); }
+            })
+            .catch(e => {
+                console.error('Team overview load failed:', e);
+                const tbody = document.getElementById('team-overview-body');
+                if (tbody) tbody.innerHTML = '<tr><td colspan="8" class="text-center text-secondary" style="padding:32px;">Could not load team data.</td></tr>';
+            });
+    });
+
+    // ── Admin Leaderboard ─────────────────────────────────────
+    document.addEventListener('DOMContentLoaded', function () {
         fetch('/dashboard/api/leaderboard?year={{ year }}')
             .then(r => r.json())
             .then(data => {
@@ -278,14 +555,20 @@
                         ? '<span class="rank-badge rank-badge--' + entry.rank + '">' + entry.rank + '</span>'
                         : entry.rank;
                     tbody.innerHTML += `
-                    <tr>
+                    <tr class="clickable-row" data-user-id="${entry.user_id}">
                         <td>${rankBadge}</td>
-                        <td class="fw-600">${entry.name}</td>
+                        <td class="fw-600"><a href="/dashboard/admin/staff/${entry.user_id}">${entry.name}</a></td>
                         <td class="fw-600">${entry.ytd}</td>
                         <td>${entry.target}</td>
                         <td>${achievement}</td>
                     </tr>
                 `;
+                });
+                tbody.addEventListener('click', function (e) {
+                    const row = e.target.closest('.clickable-row');
+                    if (row && e.target.tagName !== 'A') {
+                        window.location.href = '/dashboard/admin/staff/' + row.dataset.userId;
+                    }
                 });
                 if (data.leaderboard.length === 0) {
                     tbody.innerHTML = '<tr><td colspan="5" class="text-center text-secondary" style="padding:32px;">No data yet.</td></tr>';

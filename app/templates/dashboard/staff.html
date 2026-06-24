@@ -2,7 +2,8 @@
 
 {% block title %}Dashboard — ME Statistics{% endblock %}
 
-{% block nav_dashboard %}sidebar__link--active{% endblock %}
+{% block nav_dashboard %}{% if not current_user.is_admin %}sidebar__link--active{% endif %}{% endblock %}
+{% block nav_my_dashboard %}{% if current_user.is_admin %}sidebar__link--active{% endif %}{% endblock %}
 
 {% block content %}
 <!-- ═══ Hero Card ═══ -->
